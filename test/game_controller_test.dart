@@ -91,9 +91,9 @@ void main() {
       player.played.clear();
       async.elapse(GameController.beforeSuccess);
       expect(game.phase, Phase.success);
-      async.elapse(GameController.arpeggioStep * 8);
-      // The arpeggio goes up every lit slice.
-      expect(player.played, [0, 1, 2, 3, 4, 5, 6, 7]);
+      // Silent: every slice lit at once, no note played.
+      expect(game.lit, {0, 1, 2, 3, 4, 5, 6, 7});
+      expect(player.played, isEmpty);
       async.elapse(GameController.successHold);
       expect(game.phase, Phase.listen);
       expect(game.sequence, hasLength(3));
@@ -140,22 +140,6 @@ void main() {
       game.touchMiddle();
       expect(game.phase, Phase.listen);
       expect(game.sequence, hasLength(4));
-    });
-  });
-
-  test('with fewer slices lit the arpeggio lands on the C', () {
-    settings.activeCount = 5;
-    fakeAsync((async) {
-      game.touchMiddle();
-      waitTurn(async);
-      for (final n in game.sequence) {
-        game.press(n);
-        game.release(n);
-      }
-      player.played.clear();
-      async.elapse(GameController.beforeSuccess);
-      async.elapse(GameController.arpeggioStep * 8);
-      expect(player.played, [0, 1, 2, 3, 4, 0]);
     });
   });
 

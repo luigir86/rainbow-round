@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 
 import '../app/settings.dart';
 import '../audio/note_player.dart';
-import 'notes.dart';
 
 /// Where the game is. Each phase looks and sounds different, and the
 /// middle of the circle says which it is.
@@ -78,11 +77,8 @@ class GameController extends ChangeNotifier {
   /// From the last right note to the celebration.
   static const beforeSuccess = Duration(milliseconds: 400);
 
-  /// From one note of the celebration's arpeggio to the next.
-  static const arpeggioStep = Duration(milliseconds: 110);
-
-  /// How long the star stays before the next sequence.
-  static const successHold = Duration(milliseconds: 1500);
+  /// How long the star and the lit circle stay before the next sequence.
+  static const successHold = Duration(milliseconds: 1800);
 
   late GameMode _mode;
   late Instrument _instrument;
@@ -317,26 +313,14 @@ class GameController extends ChangeNotifier {
     _phase = Phase.success;
     _held.clear();
     notifyListeners();
-    // The notes lit going up, one after another, then the last one left
-    // lit: always the same, never as long as a sequence. It ends on a C,
-    // so that it sounds finished: the high C of the xylophone, or the low
-    // C again.
-    final arpeggio = [
-      for (var i = 0; i < _active; i++) i,
-      if (_active < Notes.count) 0,
-    ];
-    for (var i = 0; i < arpeggio.length; i++) {
-      final note = arpeggio[i];
-      _after(arpeggioStep * i, () {
-        _played
-          ..clear()
-          ..add(note);
-        player.note(note, volume: 0.7);
-        notifyListeners();
-      });
-    }
-    final end = arpeggioStep * arpeggio.length + successHold;
-    _after(end, () {
+    // Silent: every note lit at once and the star in the middle. Notes
+    // sound only for the sequence and under the child's fingers, so that
+    // what is heard is always clear: the circle plays, then the child.
+    _played
+      ..clear()
+      ..addAll([for (var i = 0; i < _active; i++) i]);
+    notifyListeners();
+    _after(successHold, () {
       _played.clear();
       if (_sequence.length >= settings.longest) {
         _phase = Phase.finished;
