@@ -1,19 +1,19 @@
 # Rainbow Round
 
-A circle of seven coloured notes, from C to B (or, in the settings, a xylophone of eight bars up to the high C), to play, listen to and repeat. Made for a child who loves music, and useful to any child. A sister app of [Low End](https://github.com/luigir86/Low-End): the same Flutter, the same bronze on ebony, the same piano, offline, with no account, no ads and no tracking.
+A circle of eight coloured notes, from C to high C (or, in the settings, a xylophone of the same eight notes), to play, listen to and repeat. Made for a child who loves music, and useful to any child. A sister app of [Low End](https://github.com/luigir86/Low-End): the same Flutter, the same bronze on ebony, the same piano, offline, with no account, no ads and no tracking.
 
 **Status: first prototype.**
 
 ## What it does now
 
-- **One screen, one instrument.** A circle of seven slices, C to B: going round is going up the scale, and after the B the C comes again. The colours follow the rainbow but alternate light and dark (light red, dark orange, yellow, light green, dark blue, lavender, dark magenta), so two neighbours differ in lightness too, for colour-blind eyes as well; the note names are on them (Do Re Mi or C D E, or colours only). Under it, the row of dots of the sequence; nothing else, apart from the gear.
-- **Or a xylophone** (settings → Instrument): eight bars from the low C on the left to the high C on the right, each a little shorter, with the state and the start in a strip above them. The high C has the colour of the low one and a light band inside.
+- **One screen, one instrument.** A circle of eight slices, C to high C, going up clockwise from the top. The colours go round the rainbow without orange (too close to the red) and alternate dark and light all the way round (dark red, yellow, dark green, turquoise, dark blue, lavender, dark magenta, light red for the high C), so two neighbours differ in lightness too, for colour-blind eyes as well; the note names are on them (Do Re Mi or C D E, or colours only). Under it, the row of dots of the sequence; nothing else, apart from the gear.
+- **Or a xylophone** (settings → Instrument): eight bars from the low C on the left to the high C on the right, each a little shorter, with the state and the start in a strip above them.
 - **Listen and repeat** (level 1, "reading"): touch the middle to start. The circle plays a short sequence by itself: each slice sounds and lights up, and its dot appears under the circle at the same moment. While it plays, touches do nothing. Then the middle of the circle lights up in bronze with a hand: it is the child's turn. There is no sound for it, so that it is never taken for one of the notes. The dots stay visible: the one to touch now is bigger, and each fills as it is played.
-  - **Right**: the notes go up in an arpeggio that lands on the C (on the circle, the low C again) and a star appears; then the same sequence comes back with one more note.
+  - **Right**: the notes go up in an arpeggio that lands on the C (the low C again when not all the notes are on) and a star appears; then the same sequence comes back with one more note.
   - **Wrong**: a low, soft note and a small shake of the slice touched; the circle then ignores every touch for one second and plays the sequence again, calmly.
   - After the longest sequence the middle shows "Another one?".
 - **Free play**: the circle is a little piano. Every touch plays its note, several fingers make a chord.
-- **Settings for the grown-up** behind the gear, which opens only when **held for two seconds** (a ring fills round it): the game, what is written on the slices, the instrument (circle or xylophone), how many notes are on (3 to 7 on the circle, 3 to 8 on the xylophone, from the low C up; the others stay dark and silent), the first and the longest sequence.
+- **Settings for the grown-up** behind the gear, which opens only when **held for two seconds** (a ring fills round it): the game, what is written on the slices, the instrument (circle or xylophone), how many notes are on (3 to 8, from the low C up; the others stay dark and silent), the first and the longest sequence.
 - English and Italian; screen-reader labels on every slice and on the middle; no shaking when the phone asks for fewer animations.
 
 The sound is the Salamander Grand Piano of Low End (public domain), five notes pitched by a semitone to cover the scale, cut to short WAV files. The timbre is still to be decided.
