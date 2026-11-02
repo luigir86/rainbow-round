@@ -7,7 +7,7 @@ A circle of eight coloured notes, from C to high C, to play, listen to and repea
 ## What it does now
 
 - **One screen, one circle.** Eight slices in the colours of a children's xylophone (red, orange, yellow, green, azure, blue-violet, pink, light red), with the note names on them (Do Re Mi or C D E, or colours only). Under the circle, the row of dots of the sequence; nothing else, apart from the gear.
-- **Listen and repeat** (level 1, "reading"): touch the middle to start. The circle plays a short sequence by itself: each slice sounds and lights up, and its dot appears under the circle at the same moment. While it plays, touches do nothing. Then a soft bell and the bronze border say it is the child's turn, and a hand appears in the middle. The dots stay visible: the one to touch now is bigger, and each fills as it is played.
+- **Listen and repeat** (level 1, "reading"): touch the middle to start. The circle plays a short sequence by itself: each slice sounds and lights up, and its dot appears under the circle at the same moment. While it plays, touches do nothing. Then the middle of the circle lights up in bronze with a hand: it is the child's turn. There is no sound for it, so that it is never taken for one of the notes. The dots stay visible: the one to touch now is bigger, and each fills as it is played.
   - **Right**: the notes of the circle go up in an arpeggio and a star appears; then the same sequence comes back with one more note.
   - **Wrong**: a low, soft note and a small shake of the slice touched; the circle then ignores every touch for one second and plays the sequence again, calmly.
   - After the longest sequence the middle shows "Another one?".

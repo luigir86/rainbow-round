@@ -21,8 +21,9 @@ abstract final class CircleGeometry {
   /// A lit slice grows out to the edge.
   static const sliceLit = 1.0;
 
-  /// The border lit with the signal of the child's turn.
-  static const cue = 0.965;
+  /// The halo round the hub when it lights with the signal of the child's
+  /// turn.
+  static const cueHalo = 0.37;
 
   /// The gap between two slices, in radians at each side.
   static const gap = 0.025;
@@ -221,10 +222,22 @@ class _RainbowCircleState extends State<RainbowCircle>
                     label: state,
                     onTap: startable ? game.touchMiddle : null,
                     excludeSemantics: true,
-                    child: Icon(
-                      icon,
-                      size: radius * CircleGeometry.hub * 1.1,
-                      color: iconColor,
+                    // On the lit hub the hand turns dark and a little
+                    // bigger.
+                    child: AnimatedBuilder(
+                      animation: _cue,
+                      builder: (context, _) => Icon(
+                        icon,
+                        size:
+                            radius *
+                            CircleGeometry.hub *
+                            (1.1 + 0.15 * _cue.value),
+                        color: Color.lerp(
+                          iconColor,
+                          scheme.onPrimary,
+                          _cue.value,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -281,17 +294,6 @@ class _CirclePainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2;
     final paint = Paint()..isAntiAlias = true;
-
-    if (cue > 0) {
-      canvas.drawCircle(
-        center,
-        radius * CircleGeometry.cue,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = radius * 0.05
-          ..color = cueColor.withValues(alpha: cue),
-      );
-    }
 
     for (var i = 0; i < Notes.count; i++) {
       final active = game.isActive(i);
@@ -353,10 +355,19 @@ class _CirclePainter extends CustomPainter {
       }
     }
 
+    // The hub lights up with the signal of the child's turn, with a halo
+    // in the gap before the slices.
+    if (cue > 0) {
+      canvas.drawCircle(
+        center,
+        radius * CircleGeometry.cueHalo,
+        Paint()..color = cueColor.withValues(alpha: cue * 0.5),
+      );
+    }
     canvas.drawCircle(
       center,
       radius * CircleGeometry.hub,
-      Paint()..color = colors.disc,
+      Paint()..color = Color.lerp(colors.disc, cueColor, cue)!,
     );
   }
 

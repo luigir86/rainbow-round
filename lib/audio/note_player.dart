@@ -6,8 +6,8 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 
 import '../game/notes.dart';
 
-/// What the circle can make heard: its notes and the two signals of the
-/// game. Behind an interface so that the tests run with no sound.
+/// What the circle can make heard: its notes and the sound of a mistake.
+/// The child's turn has no sound, so that it is never taken for a note. Behind an interface so that the tests run with no sound.
 abstract class NotePlayer {
   /// Starts the audio engine and loads the sounds, so the first touch is
   /// heard at once. Safe to call more than once.
@@ -15,9 +15,6 @@ abstract class NotePlayer {
 
   /// Plays the note of slice [note] (0 to 7).
   void note(int note, {double volume = 1});
-
-  /// The signal that it is the child's turn: always the same, soft.
-  void yourTurn();
 
   /// A mistake: one low, soft note.
   void oops();
@@ -28,7 +25,6 @@ abstract class NotePlayer {
 /// No sound: for tests.
 class SilentNotePlayer implements NotePlayer {
   final played = <int>[];
-  var turns = 0;
   var oopses = 0;
 
   @override
@@ -36,9 +32,6 @@ class SilentNotePlayer implements NotePlayer {
 
   @override
   void note(int note, {double volume = 1}) => played.add(note);
-
-  @override
-  void yourTurn() => turns++;
 
   @override
   void oops() => oopses++;
@@ -167,14 +160,6 @@ class PianoNotePlayer implements NotePlayer {
   @override
   void note(int note, {double volume = 1}) =>
       _play(Notes.midi[note], volume, slice: note);
-
-  @override
-  void yourTurn() {
-    // Two high notes together, an octave above the circle and soft: a
-    // little bell, never one of the notes of the game.
-    _play(79, 0.22);
-    _play(84, 0.28);
-  }
 
   @override
   void oops() {

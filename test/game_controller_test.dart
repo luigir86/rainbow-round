@@ -44,7 +44,7 @@ void main() {
       expect(game.phase, Phase.yourTurn);
       expect(game.shown, 2);
       expect(player.played, game.sequence);
-      expect(player.turns, 1);
+      expect(game.phase, Phase.yourTurn);
       expect(game.cue, isTrue);
       async.elapse(GameController.cueLit);
       expect(game.cue, isFalse);

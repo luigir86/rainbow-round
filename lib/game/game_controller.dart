@@ -64,8 +64,8 @@ class GameController extends ChangeNotifier {
   /// From the last note of the sequence to the signal of the child's turn.
   static const handOver = Duration(milliseconds: 550);
 
-  /// How long the border stays lit with the signal.
-  static const cueLit = Duration(milliseconds: 700);
+  /// How long the middle stays lit with the signal of the child's turn.
+  static const cueLit = Duration(milliseconds: 1000);
 
   /// A touched slice stays lit at least this long, even for a quick tap.
   static const touchLit = Duration(milliseconds: 220);
@@ -217,8 +217,9 @@ class GameController extends ChangeNotifier {
 
   void _yourTurn() {
     _phase = Phase.yourTurn;
+    // A light in the middle, with the hand: no sound, which a child would
+    // take for one of the notes.
     _cue = true;
-    player.yourTurn();
     notifyListeners();
     _after(cueLit, () {
       _cue = false;

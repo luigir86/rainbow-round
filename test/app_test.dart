@@ -64,7 +64,7 @@ void main() {
     final circle = tester.getRect(find.byType(RainbowCircle));
     await tester.tapAt(circle.center);
     await tester.pump(const Duration(seconds: 3));
-    expect(player.turns, 1);
+    expect(find.byIcon(Icons.back_hand_rounded), findsOneWidget);
     final sequence = List.of(player.played);
     expect(sequence, hasLength(2));
     for (final n in sequence) {
