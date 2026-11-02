@@ -161,13 +161,13 @@ abstract class AppLocalizations {
   /// No description provided for @activeSlices.
   ///
   /// In en, this message translates to:
-  /// **'Slices on'**
+  /// **'Notes on'**
   String get activeSlices;
 
   /// No description provided for @activeSlicesHint.
   ///
   /// In en, this message translates to:
-  /// **'From the low C up; the others stay dark and silent.'**
+  /// **'From the low C up; the others stay dark and silent. The circle has seven notes, the xylophone eight.'**
   String get activeSlicesHint;
 
   /// No description provided for @startLength.
@@ -253,6 +253,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No sequence yet'**
   String get sequenceEmpty;
+
+  /// No description provided for @instrument.
+  ///
+  /// In en, this message translates to:
+  /// **'Instrument'**
+  String get instrument;
+
+  /// No description provided for @instrumentCircle.
+  ///
+  /// In en, this message translates to:
+  /// **'Circle'**
+  String get instrumentCircle;
+
+  /// No description provided for @instrumentXylophone.
+  ///
+  /// In en, this message translates to:
+  /// **'Xylophone'**
+  String get instrumentXylophone;
 }
 
 class _AppLocalizationsDelegate

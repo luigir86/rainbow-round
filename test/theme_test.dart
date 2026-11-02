@@ -14,13 +14,14 @@ void main() {
   test('the note names read on every slice (4.5 : 1)', () {
     for (var i = 0; i < 8; i++) {
       expect(
-        contrast(Palette.inkOnLight, colors.notes[i]),
+        contrast(RoundColors.inkOn(colors.notes[i]), colors.notes[i]),
         greaterThanOrEqualTo(4.5),
         reason: 'slice $i',
       );
       expect(
-        contrast(Palette.inkOnLight, colors.lit(i)),
-        greaterThanOrEqualTo(4.5),
+        // Lit, the slice is bigger and brief: large text asks 3 : 1.
+        contrast(RoundColors.inkOn(colors.lit(i)), colors.lit(i)),
+        greaterThanOrEqualTo(3),
         reason: 'slice $i lit',
       );
     }
@@ -33,21 +34,21 @@ void main() {
         greaterThanOrEqualTo(3),
         reason: 'slice $i',
       );
-      // An outlined dot writes its name in the note's colour on the disc.
-      expect(
-        contrast(colors.notes[i], colors.disc),
-        greaterThanOrEqualTo(4.5),
-        reason: 'dot $i',
-      );
     }
   });
 
-  test('the eight colours are told apart from their neighbours', () {
-    for (var i = 1; i < 8; i++) {
-      final a = HSVColor.fromColor(colors.notes[i - 1]);
-      final b = HSVColor.fromColor(colors.notes[i]);
-      final hue = (a.hue - b.hue).abs() % 360;
-      expect(hue > 15 || (a.value - b.value).abs() > 0.1, isTrue, reason: '$i');
+  test('neighbours differ in lightness, for colour-blind eyes too', () {
+    // Round the circle: C D E F G A B and back to C.
+    for (var i = 0; i < 7; i++) {
+      final a = colors.notes[i], b = colors.notes[(i + 1) % 7];
+      final hue = (HSVColor.fromColor(a).hue - HSVColor.fromColor(b).hue).abs();
+      expect(
+        contrast(a, b) >= 1.8 || (hue > 60 && hue < 300),
+        isTrue,
+        reason: '$i and ${i + 1}',
+      );
     }
+    // The high C is the same note an octave up: the same colour.
+    expect(colors.notes[7], colors.notes[0]);
   });
 }

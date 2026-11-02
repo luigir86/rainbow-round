@@ -24,18 +24,23 @@ abstract final class Palette {
   static const inkOnDark = Color(0xFFEFEDEA);
   static const inkOnDarkMuted = Color(0xFFC9C5BF);
 
-  /// The eight slices, from C to high C: red, orange, yellow, green, azure,
-  /// blue-violet, pink and a light red for the high C, a lighter shade of
-  /// the low one's colour.
+  /// The notes from C to high C, in the order of a children's xylophone
+  /// or of Boomwhackers: red, orange, yellow, green, blue, violet, magenta
+  /// and red again for the high C, the same note an octave up. Light and
+  /// dark take turns, so that two neighbours differ in lightness as well
+  /// as in hue, which is what tells them apart for a colour-blind child;
+  /// the one pair of light neighbours, yellow and green, is the furthest
+  /// apart in hue. Seen round the circle (C to B), the dark magenta of the
+  /// B meets the light red of the C.
   static const rainbow = [
-    Color(0xFFEF6F6C),
-    Color(0xFFF4A259),
-    Color(0xFFF2D45C),
-    Color(0xFF8CCB7E),
-    Color(0xFF6EC3E8),
-    Color(0xFF9A98EE),
-    Color(0xFFE98BC4),
-    Color(0xFFF7AFAD),
+    Color(0xFFF27370),
+    Color(0xFFB04A12),
+    Color(0xFFF5D547),
+    Color(0xFF8BD67E),
+    Color(0xFF1D6CB5),
+    Color(0xFFABA6F7),
+    Color(0xFFB3378C),
+    Color(0xFFF27370),
   ];
 }
 
@@ -62,6 +67,10 @@ class RoundColors extends ThemeExtension<RoundColors> {
 
   /// [note] lit: lighter, as if a light came on under it.
   Color lit(int note) => Color.lerp(notes[note], Colors.white, 0.5)!;
+
+  /// The ink that reads best on [background]: the name of a note on its
+  /// colour, light on the dark notes and dark on the light ones.
+  static Color inkOn(Color background) => _readableOn(background);
 
   /// [note] while another one sounds: it steps back into the disc, so the
   /// one that sounds stands out.
@@ -169,4 +178,18 @@ abstract final class RoundTheme {
       ),
     );
   }
+}
+
+/// The dark or the light ink, whichever reads better on [background].
+Color _readableOn(Color background) {
+  double ratio(Color a, Color b) {
+    final l1 = a.computeLuminance(), l2 = b.computeLuminance();
+    final hi = l1 > l2 ? l1 : l2, lo = l1 > l2 ? l2 : l1;
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  return ratio(background, Palette.inkOnLight) >=
+          ratio(background, Palette.inkOnDark)
+      ? Palette.inkOnLight
+      : Palette.inkOnDark;
 }

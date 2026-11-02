@@ -40,11 +40,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelsLetters => 'C D E';
 
   @override
-  String get activeSlices => 'Slices on';
+  String get activeSlices => 'Notes on';
 
   @override
   String get activeSlicesHint =>
-      'From the low C up; the others stay dark and silent.';
+      'From the low C up; the others stay dark and silent. The circle has seven notes, the xylophone eight.';
 
   @override
   String get startLength => 'First sequence';
@@ -91,4 +91,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sequenceEmpty => 'No sequence yet';
+
+  @override
+  String get instrument => 'Instrument';
+
+  @override
+  String get instrumentCircle => 'Circle';
+
+  @override
+  String get instrumentXylophone => 'Xylophone';
 }

@@ -92,7 +92,7 @@ class _Dot extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.labelMedium!.copyWith(
       fontWeight: FontWeight.w700,
-      color: filled ? Palette.inkOnLight : color,
+      color: filled ? RoundColors.inkOn(color) : Palette.inkOnDark,
     );
     return AnimatedContainer(
       duration: MediaQuery.disableAnimationsOf(context)

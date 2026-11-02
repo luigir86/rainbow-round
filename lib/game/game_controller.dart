@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import '../app/settings.dart';
 import '../audio/note_player.dart';
+import 'notes.dart';
 
 /// Where the game is. Each phase looks and sounds different, and the
 /// middle of the circle says which it is.
@@ -42,7 +43,8 @@ class GameController extends ChangeNotifier {
   }) : _random = random ?? math.Random() {
     settings.addListener(_settingsChanged);
     _mode = settings.mode;
-    _active = settings.activeCount;
+    _instrument = settings.instrument;
+    _active = _activeFor(settings);
     _phase = _mode == GameMode.free ? Phase.free : Phase.ready;
   }
 
@@ -83,6 +85,7 @@ class GameController extends ChangeNotifier {
   static const successHold = Duration(milliseconds: 1500);
 
   late GameMode _mode;
+  late Instrument _instrument;
   late int _active;
   late Phase _phase;
   final _sequence = <int>[];
@@ -99,7 +102,13 @@ class GameController extends ChangeNotifier {
   Phase get phase => _phase;
   GameMode get mode => _mode;
 
-  /// The slices that can be played, from the low C up.
+  /// The shape of the instrument: it sets how many notes there are.
+  Instrument get instrument => _instrument;
+
+  /// How many notes the instrument has.
+  int get noteCount => _instrument.notes;
+
+  /// The notes that can be played, from the low C up.
   int get activeCount => _active;
   bool isActive(int note) => note < _active;
 
@@ -141,10 +150,18 @@ class GameController extends ChangeNotifier {
     _timers.clear();
   }
 
+  static int _activeFor(AppSettings settings) =>
+      math.min(settings.activeCount, settings.instrument.notes);
+
   void _settingsChanged() {
-    if (settings.mode == _mode && settings.activeCount == _active) return;
+    if (settings.mode == _mode &&
+        settings.instrument == _instrument &&
+        _activeFor(settings) == _active) {
+      return;
+    }
     _mode = settings.mode;
-    _active = settings.activeCount;
+    _instrument = settings.instrument;
+    _active = _activeFor(settings);
     _reset();
   }
 
@@ -300,18 +317,25 @@ class GameController extends ChangeNotifier {
     _phase = Phase.success;
     _held.clear();
     notifyListeners();
-    // The notes of the circle going up, one after another, then the top
-    // one left lit: always the same, never as long as a sequence.
-    for (var i = 0; i < _active; i++) {
+    // The notes lit going up, one after another, then the last one left
+    // lit: always the same, never as long as a sequence. It ends on a C,
+    // so that it sounds finished: the high C of the xylophone, or the low
+    // C again.
+    final arpeggio = [
+      for (var i = 0; i < _active; i++) i,
+      if (_active < Notes.count) 0,
+    ];
+    for (var i = 0; i < arpeggio.length; i++) {
+      final note = arpeggio[i];
       _after(arpeggioStep * i, () {
         _played
           ..clear()
-          ..add(i);
-        player.note(i, volume: 0.7);
+          ..add(note);
+        player.note(note, volume: 0.7);
         notifyListeners();
       });
     }
-    final end = arpeggioStep * _active + successHold;
+    final end = arpeggioStep * arpeggio.length + successHold;
     _after(end, () {
       _played.clear();
       if (_sequence.length >= settings.longest) {

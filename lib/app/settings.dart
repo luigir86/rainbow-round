@@ -12,6 +12,24 @@ enum GameMode {
   free,
 }
 
+/// The shape of the instrument on the screen. Two, to try which one a
+/// child plays better.
+enum Instrument {
+  /// A circle of seven slices, C to B: going round is going up the scale,
+  /// and after the B the C comes again.
+  circle,
+
+  /// A row of eight bars, C to high C, low on the left and high on the
+  /// right, as on a real xylophone.
+  xylophone;
+
+  /// How many notes it has.
+  int get notes => switch (this) {
+    circle => 7,
+    xylophone => 8,
+  };
+}
+
 /// The grown-up's choices, kept on the phone between launches.
 class AppSettings extends ChangeNotifier {
   /// Settings that are not saved anywhere; used in tests.
@@ -24,6 +42,9 @@ class AppSettings extends ChangeNotifier {
     _mode =
         GameMode.values.asNameMap()[_read<String>(prefs, _modeKey)] ??
         GameMode.sequence;
+    _instrument =
+        Instrument.values.asNameMap()[_read<String>(prefs, _instrumentKey)] ??
+        Instrument.circle;
     _labels = NoteLabels.values.asNameMap()[_read<String>(prefs, _labelsKey)];
     final active = _read<int>(prefs, _activeKey);
     _activeCount = activeChoices.contains(active) ? active! : Notes.count;
@@ -39,6 +60,7 @@ class AppSettings extends ChangeNotifier {
   final SharedPreferences? _prefs;
 
   static const _modeKey = 'mode';
+  static const _instrumentKey = 'instrument';
   static const _labelsKey = 'labels';
   static const _activeKey = 'activeSlices';
   static const _startKey = 'startLength';
@@ -54,6 +76,7 @@ class AppSettings extends ChangeNotifier {
   }
 
   GameMode _mode = GameMode.sequence;
+  Instrument _instrument = Instrument.circle;
   NoteLabels? _labels;
   int _activeCount = Notes.count;
   int _startLength = 2;
@@ -64,6 +87,14 @@ class AppSettings extends ChangeNotifier {
     if (value == _mode) return;
     _mode = value;
     _prefs?.setString(_modeKey, value.name);
+    notifyListeners();
+  }
+
+  Instrument get instrument => _instrument;
+  set instrument(Instrument value) {
+    if (value == _instrument) return;
+    _instrument = value;
+    _prefs?.setString(_instrumentKey, value.name);
     notifyListeners();
   }
 
@@ -86,8 +117,9 @@ class AppSettings extends ChangeNotifier {
       _labels ??
       (locale.languageCode == 'it' ? NoteLabels.solfege : NoteLabels.letters);
 
-  /// How many slices are lit, from the low C up: a child can start with
-  /// three or four and the others stay dark and silent.
+  /// How many notes are lit, from the low C up: a child can start with
+  /// three or four and the others stay dark and silent. The circle has
+  /// seven, so eight there means all of them.
   int get activeCount => _activeCount;
   set activeCount(int value) {
     if (value == _activeCount || !activeChoices.contains(value)) return;

@@ -10,8 +10,8 @@
   "labelsNone": "Colori",
   "labelsSolfege": "Do Re Mi",
   "labelsLetters": "C D E",
-  "activeSlices": "Spicchi accesi",
-  "activeSlicesHint": "Dal do basso in su; gli altri restano spenti e muti.",
+  "activeSlices": "Note accese",
+  "activeSlicesHint": "Dal do basso in su; le altre restano spente e mute. Il cerchio ha sette note, lo xilofono otto.",
   "startLength": "Prima sequenza",
   "longest": "Sequenza più lunga",
   "notesHint": "Note. Ripetuta la sequenza più lunga, il gioco finisce.",
@@ -25,5 +25,8 @@
   "stateAgain": "Ancora una?",
   "stateFree": "Suona",
   "sequence": "Sequenza: {notes}",
-  "sequenceEmpty": "Ancora nessuna sequenza"
+  "sequenceEmpty": "Ancora nessuna sequenza",
+  "instrument": "Strumento",
+  "instrumentCircle": "Cerchio",
+  "instrumentXylophone": "Xilofono"
 }
