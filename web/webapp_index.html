@@ -1,0 +1,16 @@
+<!-- The page of the web version as published by tool/build_webapp.sh: the
+     host wraps it in its own <html>, so it starts with the title. -->
+<title>Rainbow Round</title>
+<meta name="description" content="Rainbow Round: a circle of eight coloured notes to play, listen to and repeat.">
+<meta name="theme-color" content="#141312">
+<style>
+  /* The ebony of the app, dark in every theme: the page is the app. */
+  :root { --bg: #141312; --fg: #efede9; color-scheme: dark; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--fg); margin: 0; overflow: hidden;
+         touch-action: none; overscroll-behavior: none; user-select: none;
+         -webkit-user-select: none; -webkit-touch-callout: none; }
+</style>
+<!-- The audio engine of flutter_soloud, then the Flutter app. -->
+<script src="assets/packages/flutter_soloud/web/init_soloud.js" defer></script>
+<script src="flutter_bootstrap.js" async></script>

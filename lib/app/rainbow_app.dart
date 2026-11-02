@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -28,10 +29,13 @@ class _RainbowAppState extends State<RainbowApp> {
   void initState() {
     super.initState();
     // The sounds load after the first frame, so the circle shows at once
-    // and the first touch is already heard.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.player.prepare();
-    });
+    // and the first touch is already heard. A browser lets sound start only
+    // after the page is touched: there they load on the first touch.
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.player.prepare();
+      });
+    }
   }
 
   @override
@@ -54,6 +58,9 @@ class _RainbowAppState extends State<RainbowApp> {
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: AppLocalizations.supportedLocales,
-    home: RoundScreen(game: _game, settings: widget.settings),
+    home: Listener(
+      onPointerDown: kIsWeb ? (_) => widget.player.prepare() : null,
+      child: RoundScreen(game: _game, settings: widget.settings),
+    ),
   );
 }

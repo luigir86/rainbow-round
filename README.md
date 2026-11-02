@@ -15,11 +15,15 @@ A circle of eight coloured notes, from C to high C, to play, listen to and repea
 - **Settings for the grown-up** behind the gear, which opens only when **held for two seconds** (a ring fills round it): the game, what is written on the slices, how many slices are on (3 to 8, from the low C up; the others stay dark and silent), the first and the longest sequence.
 - English and Italian; screen-reader labels on every slice and on the middle; no shaking when the phone asks for fewer animations.
 
-The sound is the Salamander Grand Piano of Low End (public domain), five notes pitched by a semitone to cover the scale. The timbre is still to be decided.
+The sound is the Salamander Grand Piano of Low End (public domain), five notes pitched by a semitone to cover the scale, cut to short WAV files. The timbre is still to be decided.
 
 ## Not yet
 
 Levels 2 and 3 of the dots (fading, memory) and replay, melody mode, the colours → notes path, the "echo" variant of free play, feedback intensity, volume and vibration, an icon of its own.
+
+## Web version
+
+The same app runs in a browser, to try it without installing anything: `tool/build_webapp.sh` builds it into `build/webapp`, a folder any static host can serve from any path (no `<base href>`, no service worker). In a browser the sound starts at the first touch, as browsers require, so that very first note comes a moment late.
 
 ## Development
 

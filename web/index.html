@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="Rainbow Round: a circle of eight coloured notes to play, listen to and repeat.">
+  <meta name="theme-color" content="#141312">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Rainbow Round">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Rainbow Round</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    /* The ebony of the app while it loads: no white flash. */
+    html, body { margin: 0; height: 100%; background: #141312; }
+    /* A finger on the circle must not scroll, zoom or select the page. */
+    body { touch-action: none; overscroll-behavior: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  </style>
+</head>
+<body>
+  <!-- The audio engine of flutter_soloud: it picks the right WASM build at
+       runtime and loads its JS glue. -->
+  <script src="assets/packages/flutter_soloud/web/init_soloud.js" defer></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

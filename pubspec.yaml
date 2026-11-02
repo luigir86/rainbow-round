@@ -19,8 +19,8 @@ dependencies:
   shared_preferences: ^2.5.6
 
 # The Xiph libraries (Ogg, Vorbis, Opus, libFLAC) are left out of the audio
-# engine, as in Low End: the piano's FLAC files are decoded by miniaudio's
-# own decoder, which does not need them.
+# engine, as in Low End: the piano notes are short WAV files, which need no
+# codec and are served as they are by the web version too.
 hooks:
   user_defines:
     flutter_soloud:

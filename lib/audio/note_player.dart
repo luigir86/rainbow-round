@@ -50,7 +50,9 @@ class SilentNotePlayer implements NotePlayer {
 /// The piano of Low End: the Salamander Grand Piano by Alexander Holm (a
 /// Yamaha C5, public domain), one channel of the normal touch of the notes
 /// recorded a minor third apart, each pitched up or down a semitone to
-/// the notes in between.
+/// the notes in between. The files are Low End's, cut to 2.6 s (a note
+/// fades out by then) and kept as 16-bit WAV, which the web version can
+/// serve and decode as well.
 class PianoNotePlayer implements NotePlayer {
   final _soloud = SoLoud.instance;
   Future<void>? _ready;
@@ -64,15 +66,15 @@ class PianoNotePlayer implements NotePlayer {
   /// The recordings, by MIDI number, and how far each was from equal
   /// temperament in cents (measured for Low End, `PianoSamples.tuning`).
   static const _recorded = <int, ({String asset, double cents})>{
-    60: (asset: 'assets/piano/C4v8L.flac', cents: -1.6),
-    63: (asset: 'assets/piano/Ds4v8L.flac', cents: 0.2),
-    66: (asset: 'assets/piano/Fs4v8L.flac', cents: -2.4),
-    69: (asset: 'assets/piano/A4v8L.flac', cents: 1.6),
-    72: (asset: 'assets/piano/C5v8L.flac', cents: 4.7),
+    60: (asset: 'assets/piano/C4v8L.wav', cents: -1.6),
+    63: (asset: 'assets/piano/Ds4v8L.wav', cents: 0.2),
+    66: (asset: 'assets/piano/Fs4v8L.wav', cents: -2.4),
+    69: (asset: 'assets/piano/A4v8L.wav', cents: 1.6),
+    72: (asset: 'assets/piano/C5v8L.wav', cents: 4.7),
   };
 
   /// The soft touch of the low C (C3), for a mistake.
-  static const _lowAsset = 'assets/piano/C3v5L.flac';
+  static const _lowAsset = 'assets/piano/C3v5L.wav';
   static const _lowCents = -6.3;
 
   /// How long a note rings before it has faded away: a piano left to ring
@@ -135,7 +137,13 @@ class PianoNotePlayer implements NotePlayer {
 
   void _play(int midi, double volume, {int? slice}) {
     if (_sources.isEmpty) {
-      unawaited(prepare());
+      // Not loaded yet (in a browser, sound may only start after a first
+      // touch): the note comes as soon as it is, a little late.
+      unawaited(
+        prepare().then((_) {
+          if (_sources.isNotEmpty) _play(midi, volume, slice: slice);
+        }),
+      );
       return;
     }
     final root = _rootFor(midi);
