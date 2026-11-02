@@ -24,23 +24,22 @@ abstract final class Palette {
   static const inkOnDark = Color(0xFFEFEDEA);
   static const inkOnDarkMuted = Color(0xFFC9C5BF);
 
-  /// The notes from C to high C, in the order of a children's xylophone
-  /// or of Boomwhackers: red, orange, yellow, green, blue, violet, magenta
-  /// and red again for the high C, the same note an octave up. Light and
-  /// dark take turns, so that two neighbours differ in lightness as well
-  /// as in hue, which is what tells them apart for a colour-blind child;
-  /// the one pair of light neighbours, yellow and green, is the furthest
-  /// apart in hue. Seen round the circle (C to B), the dark magenta of the
-  /// B meets the light red of the C.
+  /// The notes from C to high C, round the rainbow with no orange (too
+  /// close to the red of the C): red, yellow, green, turquoise, blue,
+  /// lavender, magenta, and red again for the high C, light where the
+  /// low C is dark, the same note an octave up. Dark and light take
+  /// turns, all the way round the circle, so that two neighbours differ
+  /// in lightness as well as in hue: that is what tells them apart for a
+  /// colour-blind child.
   static const rainbow = [
-    Color(0xFFF27370),
-    Color(0xFFB04A12),
-    Color(0xFFF5D547),
-    Color(0xFF8BD67E),
-    Color(0xFF1D6CB5),
-    Color(0xFFABA6F7),
-    Color(0xFFB3378C),
-    Color(0xFFF27370),
+    Color(0xFFC62828), // C, dark red
+    Color(0xFFFFD54F), // D, light yellow
+    Color(0xFF237A35), // E, dark green
+    Color(0xFF6FD3E0), // F, light turquoise
+    Color(0xFF2563C8), // G, dark blue
+    Color(0xFFC3B1FF), // A, light lavender
+    Color(0xFFA8327F), // B, dark magenta
+    Color(0xFFFF8A80), // high C, light red
   ];
 }
 

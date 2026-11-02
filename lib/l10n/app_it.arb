@@ -11,7 +11,7 @@
   "labelsSolfege": "Do Re Mi",
   "labelsLetters": "C D E",
   "activeSlices": "Note accese",
-  "activeSlicesHint": "Dal do basso in su; le altre restano spente e mute. Il cerchio ha sette note, lo xilofono otto.",
+  "activeSlicesHint": "Dal do basso in su; le altre restano spente e mute.",
   "startLength": "Prima sequenza",
   "longest": "Sequenza più lunga",
   "notesHint": "Note. Ripetuta la sequenza più lunga, il gioco finisce.",

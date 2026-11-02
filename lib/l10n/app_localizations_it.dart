@@ -44,7 +44,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get activeSlicesHint =>
-      'Dal do basso in su; le altre restano spente e mute. Il cerchio ha sette note, lo xilofono otto.';
+      'Dal do basso in su; le altre restano spente e mute.';
 
   @override
   String get startLength => 'Prima sequenza';

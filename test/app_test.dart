@@ -27,7 +27,7 @@ void main() {
   /// The middle of slice [note] on screen.
   Offset sliceAt(WidgetTester tester, int note) {
     final box = tester.getRect(find.byType(RainbowCircle));
-    final a = CircleGeometry.angleOf(note, 7);
+    final a = CircleGeometry.angleOf(note, 8);
     final r = box.width / 2 * CircleGeometry.label;
     return box.center + Offset.fromDirection(a, r);
   }
@@ -74,16 +74,14 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('the circle has seven slices, the xylophone eight bars', (
-    tester,
-  ) async {
+  testWidgets('both instruments have eight notes, C to high C', (tester) async {
     final semantics = tester.ensureSemantics();
     final settings = AppSettings()
       ..mode = GameMode.free
       ..activeCount = 8;
     await pumpApp(tester, settings: settings);
     expect(find.semantics.byLabel('Si'), findsOne);
-    expect(find.semantics.byLabel('Do'), findsOne);
+    expect(find.semantics.byLabel('Do'), findsNWidgets(2));
     settings.instrument = Instrument.xylophone;
     await tester.pump();
     expect(find.byType(Xylophone), findsOneWidget);

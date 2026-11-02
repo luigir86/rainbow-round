@@ -44,7 +44,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activeSlicesHint =>
-      'From the low C up; the others stay dark and silent. The circle has seven notes, the xylophone eight.';
+      'From the low C up; the others stay dark and silent.';
 
   @override
   String get startLength => 'First sequence';

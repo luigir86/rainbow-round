@@ -53,8 +53,8 @@ abstract final class CircleGeometry {
   }
 }
 
-/// The circle: seven slices from C to B round a hub that shows the state.
-/// Going round is going up the scale, and after the B the C comes again.
+/// The circle: eight slices from C to high C round a hub that shows the
+/// state, going up clockwise from the top.
 /// Every finger counts at once, so several slices make a chord.
 class RainbowCircle extends InstrumentView {
   const RainbowCircle({

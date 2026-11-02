@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @activeSlicesHint.
   ///
   /// In en, this message translates to:
-  /// **'From the low C up; the others stay dark and silent. The circle has seven notes, the xylophone eight.'**
+  /// **'From the low C up; the others stay dark and silent.'**
   String get activeSlicesHint;
 
   /// No description provided for @startLength.

@@ -15,8 +15,8 @@ enum GameMode {
 /// The shape of the instrument on the screen. Two, to try which one a
 /// child plays better.
 enum Instrument {
-  /// A circle of seven slices, C to B: going round is going up the scale,
-  /// and after the B the C comes again.
+  /// A circle of eight slices, C to high C, going up clockwise from the
+  /// top.
   circle,
 
   /// A row of eight bars, C to high C, low on the left and high on the
@@ -24,10 +24,7 @@ enum Instrument {
   xylophone;
 
   /// How many notes it has.
-  int get notes => switch (this) {
-    circle => 7,
-    xylophone => 8,
-  };
+  int get notes => 8;
 }
 
 /// The grown-up's choices, kept on the phone between launches.
@@ -118,8 +115,7 @@ class AppSettings extends ChangeNotifier {
       (locale.languageCode == 'it' ? NoteLabels.solfege : NoteLabels.letters);
 
   /// How many notes are lit, from the low C up: a child can start with
-  /// three or four and the others stay dark and silent. The circle has
-  /// seven, so eight there means all of them.
+  /// three or four and the others stay dark and silent.
   int get activeCount => _activeCount;
   set activeCount(int value) {
     if (value == _activeCount || !activeChoices.contains(value)) return;

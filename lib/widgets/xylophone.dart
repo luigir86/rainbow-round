@@ -191,17 +191,6 @@ class _XylophonePainter extends CustomPainter {
       );
       final bar = RRect.fromRectAndRadius(rect, radius);
       canvas.drawRRect(bar, Paint()..color = fills[i]);
-      // The high C has the colour of the low one, the same note an octave
-      // up; a light band inside it tells the two apart.
-      if (i == Notes.count - 1 && active) {
-        canvas.drawRRect(
-          bar.deflate(geometry.barWidth * 0.1),
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = math.max(3, geometry.barWidth * 0.07)
-            ..color = Palette.inkOnDark,
-        );
-      }
 
       final name = labels.nameOf(i);
       if (active && name != null) {

@@ -38,17 +38,10 @@ void main() {
   });
 
   test('neighbours differ in lightness, for colour-blind eyes too', () {
-    // Round the circle: C D E F G A B and back to C.
-    for (var i = 0; i < 7; i++) {
-      final a = colors.notes[i], b = colors.notes[(i + 1) % 7];
-      final hue = (HSVColor.fromColor(a).hue - HSVColor.fromColor(b).hue).abs();
-      expect(
-        contrast(a, b) >= 1.8 || (hue > 60 && hue < 300),
-        isTrue,
-        reason: '$i and ${i + 1}',
-      );
+    // Round the circle: C to high C and back to the low C.
+    for (var i = 0; i < 8; i++) {
+      final a = colors.notes[i], b = colors.notes[(i + 1) % 8];
+      expect(contrast(a, b), greaterThanOrEqualTo(2.4), reason: '$i');
     }
-    // The high C is the same note an octave up: the same colour.
-    expect(colors.notes[7], colors.notes[0]);
   });
 }

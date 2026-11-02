@@ -14,7 +14,7 @@
   "labelsSolfege": "Do Re Mi",
   "labelsLetters": "C D E",
   "activeSlices": "Notes on",
-  "activeSlicesHint": "From the low C up; the others stay dark and silent. The circle has seven notes, the xylophone eight.",
+  "activeSlicesHint": "From the low C up; the others stay dark and silent.",
   "startLength": "First sequence",
   "longest": "Longest sequence",
   "notesHint": "Notes. When the longest sequence is repeated, the game ends.",

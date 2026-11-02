@@ -72,7 +72,7 @@ void main() {
     final box = tester.getRect(find.byType(RainbowCircle));
     return box.center +
         Offset.fromDirection(
-          CircleGeometry.angleOf(note, 7),
+          CircleGeometry.angleOf(note, 8),
           box.width / 2 * CircleGeometry.label,
         );
   }
@@ -106,7 +106,7 @@ void main() {
     (tester) => shoot(tester, '4_oops', (player) async {
       await tester.tapAt(tester.getCenter(find.byType(RainbowCircle)));
       await tester.pump(const Duration(seconds: 3));
-      final wrong = (player.played.first + 1) % 7;
+      final wrong = (player.played.first + 1) % 8;
       await tester.tapAt(sliceAt(tester, wrong));
       await tester.pump(const Duration(milliseconds: 120));
     }),
