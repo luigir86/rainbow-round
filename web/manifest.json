@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#141312",
     "theme_color": "#141312",
-    "description": "A circle of eight coloured notes to play, listen to and repeat.",
+    "description": "A circle of seven coloured notes to listen to and repeat.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
