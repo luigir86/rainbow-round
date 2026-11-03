@@ -21,7 +21,12 @@ enum NoteLabels {
   /// C D E.
   letters;
 
-  /// The name of [note] in this naming, or null for [none].
+  /// The name of [note] as written on the screen: in capitals, as every
+  /// text of the app, for a child who reads only capitals.
+  String? shownName(int note) => nameOf(note)?.toUpperCase();
+
+  /// The name of [note] in this naming, or null for [none]: as a screen
+  /// reader says it.
   String? nameOf(int note) => switch (this) {
     none => null,
     solfege => Notes.solfege[note],

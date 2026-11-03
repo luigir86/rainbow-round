@@ -166,7 +166,7 @@ class _XylophonePainter extends CustomPainter {
       final bar = RRect.fromRectAndRadius(rect, radius);
       canvas.drawRRect(bar, Paint()..color = fills[i]);
 
-      final name = labels.nameOf(i);
+      final name = labels.shownName(i);
       if (active && name != null) {
         final painter = TextPainter(
           text: TextSpan(

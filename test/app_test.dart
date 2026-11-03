@@ -5,6 +5,8 @@ import 'package:rainbow_round/app/settings.dart';
 import 'package:rainbow_round/app/settings_page.dart';
 import 'package:rainbow_round/audio/note_player.dart';
 import 'package:rainbow_round/game/game_controller.dart';
+import 'package:rainbow_round/game/notes.dart';
+import 'package:rainbow_round/l10n/app_localizations.dart';
 import 'package:rainbow_round/widgets/rainbow_circle.dart';
 import 'package:rainbow_round/widgets/xylophone.dart';
 
@@ -63,6 +65,25 @@ void main() {
     expect(find.semantics.byLabel('Sol'), findsOne);
     expect(find.semantics.byLabel('Ascolta'), findsOne);
     semantics.dispose();
+  });
+
+  testWidgets('every text on the screen is in capitals', (tester) async {
+    final settings = AppSettings()..mode = GameMode.free;
+    await pumpApp(tester, settings: settings);
+    // The names on the slices and in the dots are painted from these.
+    expect(NoteLabels.solfege.shownName(4), 'SOL');
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        locale: const Locale('it'),
+        home: SettingsPage(settings: settings),
+      ),
+    );
+    await tester.pump();
+    for (final text in tester.widgetList<Text>(find.byType(Text))) {
+      final data = text.data ?? '';
+      expect(data, data.toUpperCase(), reason: data);
+    }
   });
 
   testWidgets('free play: a touch on a slice plays its note', (tester) async {
@@ -147,9 +168,9 @@ void main() {
     await gesture.up();
     await tester.pumpAndSettle();
     expect(find.byType(SettingsPage), findsOneWidget);
-    await tester.tap(find.text('Gioco libero'));
+    await tester.tap(find.text('GIOCO LIBERO'));
     await tester.pumpAndSettle();
-    expect(find.text('Gioco libero'), findsOneWidget);
+    expect(find.text('GIOCO LIBERO'), findsOneWidget);
   });
 
   testWidgets('fits a small phone, in both orientations, with large text', (

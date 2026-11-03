@@ -4,7 +4,8 @@ import '../game/notes.dart';
 import '../l10n/app_localizations.dart';
 import 'settings.dart';
 
-/// The grown-up's page, behind the gear held down.
+/// The grown-up's page, behind the gear held down. Every text in
+/// capitals, as everywhere in the app.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key, required this.settings});
 
@@ -15,7 +16,7 @@ class SettingsPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings)),
+      appBar: AppBar(title: Text(l10n.settings.toUpperCase())),
       body: ListenableBuilder(
         listenable: settings,
         builder: (context, _) => ListView(
@@ -73,11 +74,26 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.info_outline_rounded),
-              title: Text(l10n.about),
-              onTap: () => showAboutDialog(
+              title: Text(l10n.about.toUpperCase()),
+              onTap: () => showDialog<void>(
                 context: context,
-                applicationName: l10n.appTitle,
-                applicationLegalese: l10n.aboutText,
+                builder: (context) => AlertDialog(
+                  title: Text(l10n.appTitle.toUpperCase()),
+                  content: Text(l10n.aboutText.toUpperCase()),
+                  actions: [
+                    TextButton(
+                      onPressed: () => showLicensePage(
+                        context: context,
+                        applicationName: l10n.appTitle,
+                      ),
+                      child: Text(l10n.licences.toUpperCase()),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(l10n.close.toUpperCase()),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -111,11 +127,11 @@ class _Setting<T> extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: text.titleMedium),
+          Text(title.toUpperCase(), style: text.titleMedium),
           if (hint != null) ...[
             const SizedBox(height: 4),
             Text(
-              hint!,
+              hint!.toUpperCase(),
               style: text.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -126,7 +142,7 @@ class _Setting<T> extends StatelessWidget {
             showSelectedIcon: false,
             segments: [
               for (final e in choices.entries)
-                ButtonSegment(value: e.key, label: Text(e.value)),
+                ButtonSegment(value: e.key, label: Text(e.value.toUpperCase())),
             ],
             selected: {value},
             onSelectionChanged: (s) => onChanged(s.first),

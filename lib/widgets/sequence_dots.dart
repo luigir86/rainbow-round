@@ -69,7 +69,7 @@ class SequenceDots extends StatelessWidget {
                     _Dot(
                       color: colors.notes[sequence[i]],
                       disc: colors.disc,
-                      name: labels.nameOf(sequence[i]),
+                      name: labels.shownName(sequence[i]),
                       // While the child repeats, the dots not yet played
                       // are rings, and fill as they are played; the next
                       // one is bigger.

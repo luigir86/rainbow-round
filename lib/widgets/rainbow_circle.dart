@@ -173,7 +173,7 @@ class _CirclePainter extends CustomPainter {
       paint.color = fills[i];
       canvas.drawPath(path, paint);
 
-      final name = labels.nameOf(i);
+      final name = labels.shownName(i);
       if (active && name != null) {
         final painter = TextPainter(
           text: TextSpan(

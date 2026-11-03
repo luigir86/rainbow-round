@@ -20,7 +20,8 @@ flutter test test_screenshots --update-goldens   # look at the screens without a
 - The middle does one thing: it plays the sequence (to start, and after a mistake). Bronze with an ear when it can be touched, dark and empty otherwise.
 - The circle has its colours only when the child can play; otherwise it is grey and only the note that sounds shows its colour. Touches then make no sound and are not queued.
 - The child's turn is the colours coming back, never a sound: any sound there is taken for a note.
-- A mistake is silent: the wrong note crossed in red in the dots, grey circle, ~1 s lock, then the middle replays the same sequence. A round repeated right gets no reward; the only celebration (every slice lit + star, silent) is at the end of the game, twelve notes by default. Nothing moves by itself. Notes sound only for the sequence and under the child's fingers. No timers, no score.
+- A mistake is silent: the wrong note crossed in red in the dots, grey circle, ~1 s lock, then the middle replays the same sequence. A round repeated right gets no reward; the only celebration (every slice lit + star, silent) is at the end of the game, eight notes at most (more is too many). Nothing moves by itself. Notes sound only for the sequence and under the child's fingers. No timers, no score.
+- Every visible text in capitals (note names, settings, dialogs): the child reads only capitals. Screen-reader labels stay in normal case.
 - The settings open only with the gear held down.
 - No "Simon" in names, texts or store keywords (Hasbro trademark), and not its look.
 

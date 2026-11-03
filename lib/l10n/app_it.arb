@@ -28,5 +28,7 @@
   "sequenceEmpty": "Ancora nessuna sequenza",
   "instrument": "Strumento",
   "instrumentCircle": "Cerchio",
-  "instrumentXylophone": "Xilofono"
+  "instrumentXylophone": "Xilofono",
+  "licences": "Licenze",
+  "close": "Chiudi"
 }

@@ -100,4 +100,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get instrumentXylophone => 'Xilofono';
+
+  @override
+  String get licences => 'Licenze';
+
+  @override
+  String get close => 'Chiudi';
 }

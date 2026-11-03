@@ -142,12 +142,12 @@ void main() {
     });
   });
 
-  test('from two to twelve notes, then the celebration, then ready', () {
-    expect(settings.longest, 12);
+  test('from two to eight notes, then the celebration, then ready', () {
+    expect(settings.longest, 8);
     fakeAsync((async) {
       game.touchMiddle();
       waitTurn(GameController.leadIn, async);
-      while (game.sequence.length < 12) {
+      while (game.sequence.length < 8) {
         repeat();
         expect(game.phase, Phase.listen);
         waitTurn(GameController.betweenRounds, async);
@@ -156,7 +156,7 @@ void main() {
       repeat();
       expect(game.phase, Phase.success);
       expect(game.lit, {0, 1, 2, 3, 4, 5, 6});
-      expect(player.played, hasLength(12));
+      expect(player.played, hasLength(8));
       async.elapse(GameController.successHold);
       expect(game.phase, Phase.ready);
       expect(game.sequence, isEmpty);

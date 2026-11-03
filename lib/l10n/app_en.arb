@@ -38,5 +38,7 @@
   "sequenceEmpty": "No sequence yet",
   "instrument": "Instrument",
   "instrumentCircle": "Circle",
-  "instrumentXylophone": "Xylophone"
+  "instrumentXylophone": "Xylophone",
+  "licences": "Licences",
+  "close": "Close"
 }

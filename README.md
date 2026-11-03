@@ -18,10 +18,11 @@ A circle of seven coloured notes, from C to B (or, in the settings, a xylophone 
   - **The circle has its colours only when the child can play.** While it plays the sequence (and before the start, and after a mistake) every slice is grey, and only the note that sounds shows its colour, with its dot appearing underneath. Touches make no sound and are not kept. When the sequence ends the colours come back: that is the child's turn, with no sound and no other sign.
   - It starts with **two notes**. Each sequence repeated right turns the circle grey again at once and comes back with one more note, with no reward in between.
   - **A mistake** makes no sound: the wrong note appears crossed in red in its place among the dots and the circle turns grey. After a second the middle lights up with the ear; touching it plays **the same sequence** again.
-  - At **twelve notes** (or the longest set in the settings) the game ends with the one celebration: every slice lit at once and a star in the middle, in silence. Then the middle waits for a new game.
+  - At **eight notes** (the most; 4 or 6 can be set in the settings) the game ends with the one celebration: every slice lit at once and a star in the middle, in silence. Then the middle waits for a new game.
 - **Or a xylophone** (settings → Instrument): seven bars from the C on the left to the B on the right, with the middle as a button above them.
 - **Free play** (settings → Game): the circle is a little piano.
 - **Settings for the grown-up** behind the gear, which opens only when **held for two seconds**: the game, what is written on the slices, the instrument, how many notes are on (3 to 7, from the C up), the first and the longest sequence.
+- **Capitals only**, everywhere (note names, settings), for a child who reads only capitals.
 - English and Italian; screen-reader labels on every slice and on the middle. Nothing in the game moves by itself.
 
 The sound is the Salamander Grand Piano of Low End (public domain), four notes pitched by a semitone or two to cover the scale, cut to short WAV files.

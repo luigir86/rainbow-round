@@ -271,6 +271,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Xylophone'**
   String get instrumentXylophone;
+
+  /// No description provided for @licences.
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get licences;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate
