@@ -23,37 +23,45 @@ void main() {
 
   tearDown(() => game.dispose());
 
-  /// Waits until the child's turn, from the start of a listening.
-  void waitTurn(FakeAsync async) {
+  /// Waits until the child's turn, from the start of a listening that
+  /// began after [lead].
+  void waitTurn(Duration lead, FakeAsync async) {
     async.elapse(
-      GameController.leadIn +
+      lead +
           GameController.noteStep * (game.sequence.length - 1) +
           GameController.noteLit +
           GameController.handOver,
     );
   }
 
-  test('starts ready, and the middle starts a sequence of two', () {
+  /// Plays the whole sequence right.
+  void repeat() {
+    for (final n in game.sequence) {
+      game.press(n);
+      game.release(n);
+    }
+  }
+
+  test('starts ready, and the middle plays a sequence of two', () {
     expect(game.phase, Phase.ready);
+    expect(game.middleStarts, isTrue);
+    expect(game.playable, isFalse);
     fakeAsync((async) {
       game.touchMiddle();
       expect(game.phase, Phase.listen);
+      expect(game.middleStarts, isFalse);
       expect(game.sequence, hasLength(2));
       expect(game.shown, 0);
-      waitTurn(async);
+      waitTurn(GameController.leadIn, async);
       expect(game.phase, Phase.yourTurn);
+      expect(game.playable, isTrue);
       expect(game.shown, 2);
       expect(player.played, game.sequence);
-      expect(game.phase, Phase.yourTurn);
-      expect(game.cue, isTrue);
-      async.elapse(GameController.cueLit);
-      expect(game.cue, isFalse);
     });
   });
 
   test('two notes in a row are never the same', () {
     settings.startLength = 4;
-    settings.longest = 12;
     fakeAsync((async) {
       game.touchMiddle();
       final s = game.sequence;
@@ -68,89 +76,102 @@ void main() {
       game.touchMiddle();
       async.elapse(GameController.leadIn);
       player.played.clear();
-      for (var i = 0; i < 8; i++) {
+      for (var i = 0; i < 7; i++) {
         game.press(i);
         game.release(i);
       }
+      game.touchMiddle();
       expect(player.played, isEmpty);
-      waitTurn(async);
+      waitTurn(Duration.zero, async);
       expect(game.done, 0);
     });
   });
 
-  test('the right sequence is celebrated, then grows by one', () {
+  test('a right sequence is not celebrated: one more note follows', () {
     fakeAsync((async) {
       game.touchMiddle();
-      waitTurn(async);
+      waitTurn(GameController.leadIn, async);
       final first = game.sequence;
-      for (final n in first) {
-        game.press(n);
-        game.release(n);
-      }
-      expect(game.done, 2);
-      player.played.clear();
-      async.elapse(GameController.beforeSuccess);
-      expect(game.phase, Phase.success);
-      // Silent: every slice lit at once, no note played.
-      expect(game.lit, {0, 1, 2, 3, 4, 5, 6, 7});
-      expect(player.played, isEmpty);
-      async.elapse(GameController.successHold);
+      repeat();
+      // Grey again at once, nothing lit but the note under the finger.
       expect(game.phase, Phase.listen);
+      expect(game.playable, isFalse);
       expect(game.sequence, hasLength(3));
       expect(game.sequence.take(2), first);
+      player.played.clear();
+      waitTurn(GameController.betweenRounds, async);
+      expect(player.played, game.sequence);
+      expect(game.phase, Phase.yourTurn);
     });
   });
 
-  test('a wrong note locks the circle, then the sequence is heard again', () {
+  test('a wrong note is silent and crossed; the middle replays it', () {
     fakeAsync((async) {
       game.touchMiddle();
-      waitTurn(async);
+      waitTurn(GameController.leadIn, async);
       final sequence = game.sequence;
-      final wrong = (sequence.first + 1) % 8;
+      game.press(sequence.first);
+      game.release(sequence.first);
+      final wrong = (sequence[1] + 1) % 7;
+      player.played.clear();
       game.press(wrong);
       expect(game.phase, Phase.oops);
       expect(game.wrong, wrong);
-      expect(player.oopses, 1);
-      player.played.clear();
-      // Touches during the lock do nothing at all.
-      game.press(sequence.first);
-      game.press(wrong);
+      expect(game.done, 1);
       expect(player.played, isEmpty);
-      expect(player.oopses, 1);
+      // Touches during the lock do nothing at all, the middle too.
+      game.press(sequence[1]);
+      game.touchMiddle();
+      expect(player.played, isEmpty);
+      expect(game.phase, Phase.oops);
       async.elapse(GameController.lockout);
+      // Then it waits for the middle, with the cross still shown.
+      expect(game.phase, Phase.again);
+      expect(game.wrong, wrong);
+      async.elapse(const Duration(seconds: 10));
+      expect(game.phase, Phase.again);
+      expect(player.played, isEmpty);
+      game.touchMiddle();
       expect(game.phase, Phase.listen);
+      expect(game.wrong, isNull);
       expect(game.sequence, sequence);
-      waitTurn(async);
+      waitTurn(GameController.leadIn, async);
+      expect(player.played, sequence);
       expect(game.phase, Phase.yourTurn);
       expect(game.done, 0);
     });
   });
 
-  test('after the longest sequence the game asks for another', () {
-    settings.startLength = 4;
-    settings.longest = 4;
+  test('from two to twelve notes, then the celebration, then ready', () {
+    expect(settings.longest, 12);
     fakeAsync((async) {
       game.touchMiddle();
-      waitTurn(async);
-      for (final n in game.sequence) {
-        game.press(n);
+      waitTurn(GameController.leadIn, async);
+      while (game.sequence.length < 12) {
+        repeat();
+        expect(game.phase, Phase.listen);
+        waitTurn(GameController.betweenRounds, async);
       }
-      async.elapse(const Duration(seconds: 5));
-      expect(game.phase, Phase.finished);
+      player.played.clear();
+      repeat();
+      expect(game.phase, Phase.success);
+      expect(game.lit, {0, 1, 2, 3, 4, 5, 6});
+      expect(player.played, hasLength(12));
+      async.elapse(GameController.successHold);
+      expect(game.phase, Phase.ready);
+      expect(game.sequence, isEmpty);
       game.touchMiddle();
-      expect(game.phase, Phase.listen);
-      expect(game.sequence, hasLength(4));
+      expect(game.sequence, hasLength(2));
     });
   });
 
   test('only the slices lit are played', () {
     settings.activeCount = 3;
     settings.startLength = 4;
-    settings.longest = 12;
     fakeAsync((async) {
       game.touchMiddle();
       expect(game.sequence.every((n) => n < 3), isTrue);
-      waitTurn(async);
+      waitTurn(GameController.leadIn, async);
       player.played.clear();
       game.press(5);
       expect(game.phase, Phase.yourTurn);

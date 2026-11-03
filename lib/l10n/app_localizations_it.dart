@@ -44,7 +44,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get activeSlicesHint =>
-      'Dal do basso in su; le altre restano spente e mute.';
+      'Dal do in su; le altre restano spente e mute.';
 
   @override
   String get startLength => 'Prima sequenza';
@@ -54,32 +54,32 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get notesHint =>
-      'Note. Ripetuta la sequenza più lunga, il gioco finisce.';
+      'Note. Ripetuta la sequenza più lunga, si festeggia e il gioco finisce.';
 
   @override
   String get about => 'Informazioni su Rainbow Round';
 
   @override
   String get aboutText =>
-      'Un cerchio di otto note da suonare, ascoltare e ripetere. Gratuito e open source, senza account, senza pubblicità e senza internet.';
+      'Un cerchio di sette note da suonare, ascoltare e ripetere. Gratuito e open source, senza account, senza pubblicità e senza internet.';
 
   @override
-  String get stateReady => 'Inizia';
+  String get stateReady => 'Ascolta';
 
   @override
-  String get stateListen => 'Ascolta';
+  String get stateListen => 'Ascolta, non toccare';
 
   @override
   String get stateYourTurn => 'Tocca a te';
 
   @override
-  String get stateWait => 'Aspetta';
+  String get stateWait => 'Nota sbagliata';
 
   @override
   String get stateWellDone => 'Ottimo!';
 
   @override
-  String get stateAgain => 'Ancora una?';
+  String get stateAgain => 'Ascolta di nuovo';
 
   @override
   String get stateFree => 'Suona';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'style.dart';
 
 /// Rainbow Round's look, in one place: the bronze on ebony of Low End, and
-/// the eight colours of the circle.
+/// the seven colours of the circle.
 ///
 /// Always dark, flat, one accent (the bronze) for everything that is not a
 /// note. The notes have the colours of a children's xylophone or of
@@ -24,13 +24,14 @@ abstract final class Palette {
   static const inkOnDark = Color(0xFFEFEDEA);
   static const inkOnDarkMuted = Color(0xFFC9C5BF);
 
-  /// The notes from C to high C, round the rainbow with no orange (too
-  /// close to the red of the C): red, yellow, green, turquoise, blue,
-  /// lavender, magenta, and red again for the high C, light where the
-  /// low C is dark, the same note an octave up. Dark and light take
-  /// turns, all the way round the circle, so that two neighbours differ
+  /// The notes from C to B, round the rainbow with no orange (too close
+  /// to the red of the C): red, yellow, green, turquoise, blue, lavender
+  /// and magenta. Dark and light take turns, so that two neighbours differ
   /// in lightness as well as in hue: that is what tells them apart for a
-  /// colour-blind child.
+  /// colour-blind child. Seven is odd, so round the circle one pair has
+  /// to break the turns: the magenta of the B and the red of the C, both
+  /// dark, which the blue in the magenta keeps apart for colour-blind
+  /// eyes as well.
   static const rainbow = [
     Color(0xFFC62828), // C, dark red
     Color(0xFFFFD54F), // D, light yellow
@@ -39,7 +40,6 @@ abstract final class Palette {
     Color(0xFF2563C8), // G, dark blue
     Color(0xFFC3B1FF), // A, light lavender
     Color(0xFFA8327F), // B, dark magenta
-    Color(0xFFFF8A80), // high C, light red
   ];
 }
 
@@ -58,7 +58,7 @@ class RoundColors extends ThemeExtension<RoundColors> {
   /// A slice that is switched off in the settings.
   final Color sliceOff;
 
-  /// The colour of each of the eight notes, from C to high C.
+  /// The colour of each of the seven notes, from C to B.
   final List<Color> notes;
 
   static RoundColors of(BuildContext context) =>
@@ -71,9 +71,15 @@ class RoundColors extends ThemeExtension<RoundColors> {
   /// colour, light on the dark notes and dark on the light ones.
   static Color inkOn(Color background) => _readableOn(background);
 
-  /// [note] while another one sounds: it steps back into the disc, so the
-  /// one that sounds stands out.
-  Color receded(int note) => Color.lerp(notes[note], disc, 0.55)!;
+  /// [note] while the circle cannot be played: grey, with a hint of its
+  /// colour, so the whole circle looks switched off and only the note
+  /// that sounds has its colour.
+  Color asleep(int note) {
+    final c = notes[note];
+    final grey = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
+    final flat = Color.from(alpha: 1, red: grey, green: grey, blue: grey);
+    return Color.lerp(Color.lerp(flat, c, 0.15), disc, 0.55)!;
+  }
 
   @override
   RoundColors copyWith({Color? disc, Color? sliceOff, List<Color>? notes}) =>

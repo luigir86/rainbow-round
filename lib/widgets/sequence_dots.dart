@@ -30,7 +30,8 @@ class SequenceDots extends StatelessWidget {
     final colors = RoundColors.of(context);
     final sequence = game.sequence;
     final phase = game.phase;
-    final repeating = phase == Phase.yourTurn || phase == Phase.oops;
+    final missed = phase == Phase.oops || phase == Phase.again;
+    final repeating = phase == Phase.yourTurn || missed;
     final count = switch (phase) {
       Phase.free || Phase.ready => 0,
       Phase.listen => game.shown,
@@ -53,16 +54,28 @@ class SequenceDots extends StatelessWidget {
               children: [
                 for (var i = 0; i < count; i++) ...[
                   if (i > 0) const SizedBox(width: gap),
-                  _Dot(
-                    color: colors.notes[sequence[i]],
-                    disc: colors.disc,
-                    name: labels.nameOf(sequence[i]),
-                    // While the child repeats, the dots not yet played
-                    // are rings, and fill as they are played; the next one
-                    // is bigger.
-                    filled: !repeating || i < game.done,
-                    size: repeating && i == game.done ? next : dot,
-                  ),
+                  if (missed && i == game.done)
+                    // The wrong note, in its place: its colour crossed out
+                    // in red, until the sequence is heard again.
+                    _Dot(
+                      color: colors.notes[game.wrong!],
+                      disc: colors.disc,
+                      name: null,
+                      filled: false,
+                      size: next,
+                      crossed: Theme.of(context).colorScheme.error,
+                    )
+                  else
+                    _Dot(
+                      color: colors.notes[sequence[i]],
+                      disc: colors.disc,
+                      name: labels.nameOf(sequence[i]),
+                      // While the child repeats, the dots not yet played
+                      // are rings, and fill as they are played; the next
+                      // one is bigger.
+                      filled: !repeating || i < game.done,
+                      size: repeating && !missed && i == game.done ? next : dot,
+                    ),
                 ],
               ],
             ),
@@ -80,6 +93,7 @@ class _Dot extends StatelessWidget {
     required this.name,
     required this.filled,
     required this.size,
+    this.crossed,
   });
 
   final Color color;
@@ -88,17 +102,17 @@ class _Dot extends StatelessWidget {
   final bool filled;
   final double size;
 
+  /// The colour of the cross over a wrong note, or null.
+  final Color? crossed;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.labelMedium!.copyWith(
       fontWeight: FontWeight.w700,
       color: filled ? RoundColors.inkOn(color) : Palette.inkOnDark,
     );
-    return AnimatedContainer(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : Durations.short4,
-      curve: Easing.standard,
+    // No motion: a dot changes at once.
+    return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
@@ -107,7 +121,9 @@ class _Dot extends StatelessWidget {
         color: filled ? color : disc,
         border: Border.all(color: color, width: 4),
       ),
-      child: name == null
+      child: crossed != null
+          ? Icon(Icons.close_rounded, color: crossed, size: size * 0.9)
+          : name == null
           ? null
           : FittedBox(
               fit: BoxFit.scaleDown,

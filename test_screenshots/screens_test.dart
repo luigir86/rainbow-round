@@ -72,7 +72,7 @@ void main() {
     final box = tester.getRect(find.byType(RainbowCircle));
     return box.center +
         Offset.fromDirection(
-          CircleGeometry.angleOf(note, 8),
+          CircleGeometry.angleOf(note, 7),
           box.width / 2 * CircleGeometry.label,
         );
   }
@@ -102,27 +102,37 @@ void main() {
   );
 
   testWidgets(
-    'oops',
+    'oops, then waiting for the middle',
     (tester) => shoot(tester, '4_oops', (player) async {
       await tester.tapAt(tester.getCenter(find.byType(RainbowCircle)));
       await tester.pump(const Duration(seconds: 3));
-      final wrong = (player.played.first + 1) % 8;
+      final first = player.played.first;
+      await tester.tapAt(sliceAt(tester, first));
+      await tester.pump(const Duration(milliseconds: 300));
+      final wrong = (player.played[1] + 1) % 7;
       await tester.tapAt(sliceAt(tester, wrong));
-      await tester.pump(const Duration(milliseconds: 120));
+      await tester.pump(GameController.lockout);
     }),
   );
 
   testWidgets(
-    'success',
-    (tester) => shoot(tester, '5_success', (player) async {
-      await tester.tapAt(tester.getCenter(find.byType(RainbowCircle)));
-      await tester.pump(const Duration(seconds: 3));
-      for (final n in List.of(player.played)) {
-        await tester.tapAt(sliceAt(tester, n));
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-      await tester.pump(const Duration(milliseconds: 1200));
-    }),
+    'success, at the end of the game',
+    (tester) => shoot(
+      tester,
+      '5_success',
+      (player) async {
+        await tester.tapAt(tester.getCenter(find.byType(RainbowCircle)));
+        await tester.pump(const Duration(seconds: 4));
+        for (final n in List.of(player.played)) {
+          await tester.tapAt(sliceAt(tester, n));
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+        await tester.pump(const Duration(milliseconds: 500));
+      },
+      settings: AppSettings()
+        ..startLength = 4
+        ..longest = 4,
+    ),
   );
 
   testWidgets(
@@ -164,19 +174,12 @@ void main() {
 
   testWidgets(
     'xylophone your turn',
-    (tester) => shoot(
-      tester,
-      '9_xylophone',
-      (player) async {
-        final box = tester.getRect(find.byType(Xylophone));
-        final geometry = XylophoneGeometry(box.size, 8);
-        await tester.tapAt(box.topLeft + geometry.button.center);
-        await tester.pump(const Duration(seconds: 3));
-      },
-      settings: AppSettings()
-        ..instrument = Instrument.xylophone
-        ..activeCount = 8,
-    ),
+    (tester) => shoot(tester, '9_xylophone', (player) async {
+      final box = tester.getRect(find.byType(Xylophone));
+      final geometry = XylophoneGeometry(box.size, 7);
+      await tester.tapAt(box.topLeft + geometry.button.center);
+      await tester.pump(const Duration(seconds: 3));
+    }, settings: AppSettings()..instrument = Instrument.xylophone),
   );
 
   testWidgets(
@@ -186,14 +189,13 @@ void main() {
       '10_xylophone_landscape',
       (_) async {
         final box = tester.getRect(find.byType(Xylophone));
-        final geometry = XylophoneGeometry(box.size, 8);
+        final geometry = XylophoneGeometry(box.size, 7);
         await tester.startGesture(box.topLeft + geometry.bar(4).center);
         await tester.pump(const Duration(milliseconds: 50));
       },
       settings: AppSettings()
         ..mode = GameMode.free
-        ..instrument = Instrument.xylophone
-        ..activeCount = 8,
+        ..instrument = Instrument.xylophone,
       size: const Size(915, 412),
     ),
   );

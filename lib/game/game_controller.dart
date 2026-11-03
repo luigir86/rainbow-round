@@ -6,13 +6,14 @@ import 'package:flutter/foundation.dart';
 import '../app/settings.dart';
 import '../audio/note_player.dart';
 
-/// Where the game is. Each phase looks and sounds different, and the
-/// middle of the circle says which it is.
+/// Where the game is. Only in [yourTurn] (and in free play) can the
+/// circle be played, and only then does it have its colours: in every
+/// other phase it is grey and touches do nothing.
 enum Phase {
   /// Free play: every touch plays its note.
   free,
 
-  /// Waiting for the grown-up (or the child) to touch the middle.
+  /// Waiting for the middle to be touched, which plays the sequence.
   ready,
 
   /// The circle plays the sequence; touches do nothing.
@@ -21,15 +22,16 @@ enum Phase {
   /// The child repeats the sequence.
   yourTurn,
 
-  /// A wrong note: for a moment nothing answers, then the sequence is
-  /// heard again.
+  /// A wrong note, crossed out in the dots: for a moment nothing answers.
   oops,
 
-  /// The sequence was right: the circle celebrates.
-  success,
+  /// After a mistake, waiting for the middle to be touched, which plays
+  /// the same sequence again.
+  again,
 
-  /// The longest sequence was repeated: the middle asks for another game.
-  finished,
+  /// The longest sequence was repeated: the circle celebrates, once, at
+  /// the end of the game.
+  success,
 }
 
 /// The rules of the circle, with no widgets: what is lit, what sounds and
@@ -62,23 +64,23 @@ class GameController extends ChangeNotifier {
   /// How long a slice of the sequence stays lit.
   static const noteLit = Duration(milliseconds: 480);
 
-  /// From the last note of the sequence to the signal of the child's turn.
+  /// From the last note of the sequence to the child's turn, when the
+  /// colours come back.
   static const handOver = Duration(milliseconds: 550);
-
-  /// How long the middle stays lit with the signal of the child's turn.
-  static const cueLit = Duration(milliseconds: 1000);
 
   /// A touched slice stays lit at least this long, even for a quick tap.
   static const touchLit = Duration(milliseconds: 220);
 
-  /// After a mistake, nothing answers for this long.
+  /// After a mistake, the middle does not answer for this long, so that a
+  /// hand still touching does not start the sequence by chance.
   static const lockout = Duration(milliseconds: 1000);
 
-  /// From the last right note to the celebration.
-  static const beforeSuccess = Duration(milliseconds: 400);
+  /// From the last right note to the next, longer sequence: the circle
+  /// turns grey at once and stays silent for this long.
+  static const betweenRounds = Duration(milliseconds: 1200);
 
-  /// How long the star and the lit circle stay before the next sequence.
-  static const successHold = Duration(milliseconds: 1800);
+  /// How long the star and the lit circle stay at the end of the game.
+  static const successHold = Duration(milliseconds: 3000);
 
   late GameMode _mode;
   late Instrument _instrument;
@@ -91,22 +93,26 @@ class GameController extends ChangeNotifier {
   final _held = <int, int>{};
   final _flashing = <int, int>{};
   int? _wrong;
-  int _wrongCount = 0;
-  bool _cue = false;
   final _timers = <Timer>[];
 
   Phase get phase => _phase;
   GameMode get mode => _mode;
 
-  /// The shape of the instrument: it sets how many notes there are.
+  /// The shape of the instrument.
   Instrument get instrument => _instrument;
 
   /// How many notes the instrument has.
   int get noteCount => _instrument.notes;
 
-  /// The notes that can be played, from the low C up.
+  /// The notes that can be played, from the C up.
   int get activeCount => _active;
   bool isActive(int note) => note < _active;
+
+  /// The circle can be played now: it has its colours.
+  bool get playable => _phase == Phase.yourTurn || _phase == Phase.free;
+
+  /// The middle answers now, and plays the sequence.
+  bool get middleStarts => _phase == Phase.ready || _phase == Phase.again;
 
   /// The sequence of this round, by slice.
   List<int> get sequence => List.unmodifiable(_sequence);
@@ -115,20 +121,16 @@ class GameController extends ChangeNotifier {
   /// listening: their dots are shown.
   int get shown => _shown;
 
-  /// How many notes the child has repeated right so far.
+  /// How many notes the child has repeated right so far. After a mistake,
+  /// the wrong note was the one in this place.
   int get done => _done;
 
   /// The slices lit now: the one the circle plays, the ones touched.
   Set<int> get lit => {..._played, ..._held.keys, ..._flashing.keys};
 
-  /// The slice touched by mistake, while it shakes.
+  /// The slice touched by mistake, crossed out in the dots until the
+  /// sequence is heard again.
   int? get wrong => _wrong;
-
-  /// Grows by one at every mistake, so the screen knows to shake again.
-  int get wrongCount => _wrongCount;
-
-  /// The border is lit with the signal of the child's turn.
-  bool get cue => _cue;
 
   void _after(Duration delay, void Function() action) {
     late final Timer timer;
@@ -171,20 +173,30 @@ class GameController extends ChangeNotifier {
     _held.clear();
     _flashing.clear();
     _wrong = null;
-    _cue = false;
     _phase = _mode == GameMode.free ? Phase.free : Phase.ready;
     notifyListeners();
   }
 
-  /// The middle of the circle was touched: it starts a game when one is
-  /// waiting, and does nothing otherwise.
+  /// The middle of the circle was touched. It does one thing only: it
+  /// plays the sequence, a new one at the start of a game, the same one
+  /// after a mistake. At any other moment it does nothing.
   void touchMiddle() {
-    if (_phase != Phase.ready && _phase != Phase.finished) return;
-    _sequence.clear();
-    for (var i = 0; i < settings.startLength; i++) {
-      _sequence.add(_nextNote());
+    switch (_phase) {
+      case Phase.ready:
+        _sequence.clear();
+        for (var i = 0; i < settings.startLength; i++) {
+          _sequence.add(_nextNote());
+        }
+        _listen(leadIn);
+      case Phase.again:
+        _listen(leadIn);
+      case Phase.free ||
+          Phase.listen ||
+          Phase.yourTurn ||
+          Phase.oops ||
+          Phase.success:
+        return;
     }
-    _listen();
   }
 
   /// A random note of those lit, not the same as the last one, so that two
@@ -199,7 +211,7 @@ class GameController extends ChangeNotifier {
     return note;
   }
 
-  void _listen() {
+  void _listen(Duration lead) {
     _cancelTimers();
     _phase = Phase.listen;
     _shown = 0;
@@ -209,7 +221,7 @@ class GameController extends ChangeNotifier {
     _wrong = null;
     notifyListeners();
     for (var i = 0; i < _sequence.length; i++) {
-      final at = leadIn + noteStep * i;
+      final at = lead + noteStep * i;
       final note = _sequence[i];
       _after(at, () {
         _played
@@ -224,18 +236,11 @@ class GameController extends ChangeNotifier {
         notifyListeners();
       });
     }
-    final end = leadIn + noteStep * (_sequence.length - 1) + noteLit;
-    _after(end + handOver, _yourTurn);
-  }
-
-  void _yourTurn() {
-    _phase = Phase.yourTurn;
-    // A light in the middle, with the hand: no sound, which a child would
-    // take for one of the notes.
-    _cue = true;
-    notifyListeners();
-    _after(cueLit, () {
-      _cue = false;
+    final end = lead + noteStep * (_sequence.length - 1) + noteLit;
+    _after(end + handOver, () {
+      // No sound and no sign of its own: the colours coming back are the
+      // child's turn.
+      _phase = Phase.yourTurn;
       notifyListeners();
     });
   }
@@ -252,8 +257,8 @@ class GameController extends ChangeNotifier {
       case Phase.ready ||
           Phase.listen ||
           Phase.oops ||
-          Phase.success ||
-          Phase.finished:
+          Phase.again ||
+          Phase.success:
         // Not the child's turn: no sound, no light, nothing kept for later.
         return;
     }
@@ -292,43 +297,55 @@ class GameController extends ChangeNotifier {
     _light(note);
     player.note(note);
     _done++;
-    notifyListeners();
-    if (_done == _sequence.length) _after(beforeSuccess, _success);
+    if (_done < _sequence.length) {
+      notifyListeners();
+      return;
+    }
+    // Right to the end: the circle is grey again at once, with no reward
+    // in between; the celebration is kept for the end of the game.
+    if (_sequence.length >= settings.longest) {
+      _success();
+    } else {
+      _sequence.add(_nextNote());
+      _listen(betweenRounds);
+      // The note just touched still shows under the finger.
+      _light(note);
+    }
   }
 
   void _mistake(int note) {
+    // Silent: the wrong note makes no sound, the dot is crossed out and
+    // the circle turns grey.
     _cancelTimers();
     _phase = Phase.oops;
     _held.clear();
     _flashing.clear();
-    _cue = false;
     _wrong = note;
-    _wrongCount++;
-    player.oops();
     notifyListeners();
-    _after(lockout, _listen);
+    _after(lockout, () {
+      _phase = Phase.again;
+      notifyListeners();
+    });
   }
 
   void _success() {
+    _cancelTimers();
     _phase = Phase.success;
     _held.clear();
-    notifyListeners();
+    _flashing.clear();
     // Silent: every note lit at once and the star in the middle. Notes
-    // sound only for the sequence and under the child's fingers, so that
-    // what is heard is always clear: the circle plays, then the child.
+    // sound only for the sequence and under the child's fingers.
     _played
       ..clear()
       ..addAll([for (var i = 0; i < _active; i++) i]);
     notifyListeners();
     _after(successHold, () {
       _played.clear();
-      if (_sequence.length >= settings.longest) {
-        _phase = Phase.finished;
-        notifyListeners();
-      } else {
-        _sequence.add(_nextNote());
-        _listen();
-      }
+      _sequence.clear();
+      _shown = 0;
+      _done = 0;
+      _phase = Phase.ready;
+      notifyListeners();
     });
   }
 

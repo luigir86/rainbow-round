@@ -6,18 +6,17 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 
 import '../game/notes.dart';
 
-/// What the circle can make heard: its notes and the sound of a mistake.
-/// The child's turn has no sound, so that it is never taken for a note. Behind an interface so that the tests run with no sound.
+/// What the circle can make heard: its notes, and nothing else. The
+/// child's turn, a mistake and the celebration have no sound, so that
+/// none is ever taken for a note. Behind an interface so that the tests
+/// run with no sound.
 abstract class NotePlayer {
   /// Starts the audio engine and loads the sounds, so the first touch is
   /// heard at once. Safe to call more than once.
   Future<void> prepare();
 
-  /// Plays the note of slice [note] (0 to 7).
+  /// Plays the note of slice [note] (0 to 6).
   void note(int note, {double volume = 1});
-
-  /// A mistake: one low, soft note.
-  void oops();
 
   void dispose();
 }
@@ -25,16 +24,12 @@ abstract class NotePlayer {
 /// No sound: for tests.
 class SilentNotePlayer implements NotePlayer {
   final played = <int>[];
-  var oopses = 0;
 
   @override
   Future<void> prepare() async {}
 
   @override
   void note(int note, {double volume = 1}) => played.add(note);
-
-  @override
-  void oops() => oopses++;
 
   @override
   void dispose() {}
@@ -50,7 +45,6 @@ class PianoNotePlayer implements NotePlayer {
   final _soloud = SoLoud.instance;
   Future<void>? _ready;
   final _sources = <int, AudioSource>{};
-  AudioSource? _low;
 
   /// The sound still ringing on each slice, stopped when it is struck again
   /// as the damper of a real key would.
@@ -65,10 +59,6 @@ class PianoNotePlayer implements NotePlayer {
     69: (asset: 'assets/piano/A4v8L.wav', cents: 1.6),
     72: (asset: 'assets/piano/C5v8L.wav', cents: 4.7),
   };
-
-  /// The soft touch of the low C (C3), for a mistake.
-  static const _lowAsset = 'assets/piano/C3v5L.wav';
-  static const _lowCents = -6.3;
 
   /// How long a note rings before it has faded away: a piano left to ring
   /// for ever would pile up under a child's quick touches.
@@ -98,7 +88,6 @@ class PianoNotePlayer implements NotePlayer {
     for (final e in _recorded.entries) {
       _sources[e.key] = await _soloud.loadAsset(e.value.asset);
     }
-    _low = await _soloud.loadAsset(_lowAsset);
   }
 
   /// The recording nearest to [midi].
@@ -160,13 +149,6 @@ class PianoNotePlayer implements NotePlayer {
   @override
   void note(int note, {double volume = 1}) =>
       _play(Notes.midi[note], volume, slice: note);
-
-  @override
-  void oops() {
-    final low = _low;
-    if (low == null) return;
-    _strike(low, 48, _lowCents, 48, 0.7);
-  }
 
   @override
   void dispose() {
