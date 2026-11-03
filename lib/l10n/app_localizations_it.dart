@@ -40,11 +40,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get labelsLetters => 'C D E';
 
   @override
-  String get activeSlices => 'Spicchi accesi';
+  String get activeSlices => 'Note accese';
 
   @override
   String get activeSlicesHint =>
-      'Dal do basso in su; gli altri restano spenti e muti.';
+      'Dal do basso in su; le altre restano spente e mute.';
 
   @override
   String get startLength => 'Prima sequenza';
@@ -91,4 +91,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get sequenceEmpty => 'Ancora nessuna sequenza';
+
+  @override
+  String get instrument => 'Strumento';
+
+  @override
+  String get instrumentCircle => 'Cerchio';
+
+  @override
+  String get instrumentXylophone => 'Xilofono';
 }

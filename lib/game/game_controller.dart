@@ -42,7 +42,8 @@ class GameController extends ChangeNotifier {
   }) : _random = random ?? math.Random() {
     settings.addListener(_settingsChanged);
     _mode = settings.mode;
-    _active = settings.activeCount;
+    _instrument = settings.instrument;
+    _active = _activeFor(settings);
     _phase = _mode == GameMode.free ? Phase.free : Phase.ready;
   }
 
@@ -64,8 +65,8 @@ class GameController extends ChangeNotifier {
   /// From the last note of the sequence to the signal of the child's turn.
   static const handOver = Duration(milliseconds: 550);
 
-  /// How long the border stays lit with the signal.
-  static const cueLit = Duration(milliseconds: 700);
+  /// How long the middle stays lit with the signal of the child's turn.
+  static const cueLit = Duration(milliseconds: 1000);
 
   /// A touched slice stays lit at least this long, even for a quick tap.
   static const touchLit = Duration(milliseconds: 220);
@@ -76,13 +77,11 @@ class GameController extends ChangeNotifier {
   /// From the last right note to the celebration.
   static const beforeSuccess = Duration(milliseconds: 400);
 
-  /// From one note of the celebration's arpeggio to the next.
-  static const arpeggioStep = Duration(milliseconds: 110);
-
-  /// How long the star stays before the next sequence.
-  static const successHold = Duration(milliseconds: 1500);
+  /// How long the star and the lit circle stay before the next sequence.
+  static const successHold = Duration(milliseconds: 1800);
 
   late GameMode _mode;
+  late Instrument _instrument;
   late int _active;
   late Phase _phase;
   final _sequence = <int>[];
@@ -99,7 +98,13 @@ class GameController extends ChangeNotifier {
   Phase get phase => _phase;
   GameMode get mode => _mode;
 
-  /// The slices that can be played, from the low C up.
+  /// The shape of the instrument: it sets how many notes there are.
+  Instrument get instrument => _instrument;
+
+  /// How many notes the instrument has.
+  int get noteCount => _instrument.notes;
+
+  /// The notes that can be played, from the low C up.
   int get activeCount => _active;
   bool isActive(int note) => note < _active;
 
@@ -141,10 +146,18 @@ class GameController extends ChangeNotifier {
     _timers.clear();
   }
 
+  static int _activeFor(AppSettings settings) =>
+      math.min(settings.activeCount, settings.instrument.notes);
+
   void _settingsChanged() {
-    if (settings.mode == _mode && settings.activeCount == _active) return;
+    if (settings.mode == _mode &&
+        settings.instrument == _instrument &&
+        _activeFor(settings) == _active) {
+      return;
+    }
     _mode = settings.mode;
-    _active = settings.activeCount;
+    _instrument = settings.instrument;
+    _active = _activeFor(settings);
     _reset();
   }
 
@@ -217,8 +230,9 @@ class GameController extends ChangeNotifier {
 
   void _yourTurn() {
     _phase = Phase.yourTurn;
+    // A light in the middle, with the hand: no sound, which a child would
+    // take for one of the notes.
     _cue = true;
-    player.yourTurn();
     notifyListeners();
     _after(cueLit, () {
       _cue = false;
@@ -299,19 +313,14 @@ class GameController extends ChangeNotifier {
     _phase = Phase.success;
     _held.clear();
     notifyListeners();
-    // The notes of the circle going up, one after another, then the top
-    // one left lit: always the same, never as long as a sequence.
-    for (var i = 0; i < _active; i++) {
-      _after(arpeggioStep * i, () {
-        _played
-          ..clear()
-          ..add(i);
-        player.note(i, volume: 0.7);
-        notifyListeners();
-      });
-    }
-    final end = arpeggioStep * _active + successHold;
-    _after(end, () {
+    // Silent: every note lit at once and the star in the middle. Notes
+    // sound only for the sequence and under the child's fingers, so that
+    // what is heard is always clear: the circle plays, then the child.
+    _played
+      ..clear()
+      ..addAll([for (var i = 0; i < _active; i++) i]);
+    notifyListeners();
+    _after(successHold, () {
       _played.clear();
       if (_sequence.length >= settings.longest) {
         _phase = Phase.finished;

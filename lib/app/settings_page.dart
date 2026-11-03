@@ -30,6 +30,15 @@ class SettingsPage extends StatelessWidget {
               },
               onChanged: (v) => settings.mode = v,
             ),
+            _Setting<Instrument>(
+              title: l10n.instrument,
+              value: settings.instrument,
+              choices: {
+                Instrument.circle: l10n.instrumentCircle,
+                Instrument.xylophone: l10n.instrumentXylophone,
+              },
+              onChanged: (v) => settings.instrument = v,
+            ),
             _Setting<NoteLabels>(
               title: l10n.labels,
               value: settings.labelsFor(locale),

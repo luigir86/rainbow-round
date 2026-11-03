@@ -24,18 +24,22 @@ abstract final class Palette {
   static const inkOnDark = Color(0xFFEFEDEA);
   static const inkOnDarkMuted = Color(0xFFC9C5BF);
 
-  /// The eight slices, from C to high C: red, orange, yellow, green, azure,
-  /// blue-violet, pink and a light red for the high C, a lighter shade of
-  /// the low one's colour.
+  /// The notes from C to high C, round the rainbow with no orange (too
+  /// close to the red of the C): red, yellow, green, turquoise, blue,
+  /// lavender, magenta, and red again for the high C, light where the
+  /// low C is dark, the same note an octave up. Dark and light take
+  /// turns, all the way round the circle, so that two neighbours differ
+  /// in lightness as well as in hue: that is what tells them apart for a
+  /// colour-blind child.
   static const rainbow = [
-    Color(0xFFEF6F6C),
-    Color(0xFFF4A259),
-    Color(0xFFF2D45C),
-    Color(0xFF8CCB7E),
-    Color(0xFF6EC3E8),
-    Color(0xFF9A98EE),
-    Color(0xFFE98BC4),
-    Color(0xFFF7AFAD),
+    Color(0xFFC62828), // C, dark red
+    Color(0xFFFFD54F), // D, light yellow
+    Color(0xFF237A35), // E, dark green
+    Color(0xFF6FD3E0), // F, light turquoise
+    Color(0xFF2563C8), // G, dark blue
+    Color(0xFFC3B1FF), // A, light lavender
+    Color(0xFFA8327F), // B, dark magenta
+    Color(0xFFFF8A80), // high C, light red
   ];
 }
 
@@ -62,6 +66,10 @@ class RoundColors extends ThemeExtension<RoundColors> {
 
   /// [note] lit: lighter, as if a light came on under it.
   Color lit(int note) => Color.lerp(notes[note], Colors.white, 0.5)!;
+
+  /// The ink that reads best on [background]: the name of a note on its
+  /// colour, light on the dark notes and dark on the light ones.
+  static Color inkOn(Color background) => _readableOn(background);
 
   /// [note] while another one sounds: it steps back into the disc, so the
   /// one that sounds stands out.
@@ -169,4 +177,18 @@ abstract final class RoundTheme {
       ),
     );
   }
+}
+
+/// The dark or the light ink, whichever reads better on [background].
+Color _readableOn(Color background) {
+  double ratio(Color a, Color b) {
+    final l1 = a.computeLuminance(), l2 = b.computeLuminance();
+    final hi = l1 > l2 ? l1 : l2, lo = l1 > l2 ? l2 : l1;
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  return ratio(background, Palette.inkOnLight) >=
+          ratio(background, Palette.inkOnDark)
+      ? Palette.inkOnLight
+      : Palette.inkOnDark;
 }

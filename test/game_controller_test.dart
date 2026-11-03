@@ -44,7 +44,7 @@ void main() {
       expect(game.phase, Phase.yourTurn);
       expect(game.shown, 2);
       expect(player.played, game.sequence);
-      expect(player.turns, 1);
+      expect(game.phase, Phase.yourTurn);
       expect(game.cue, isTrue);
       async.elapse(GameController.cueLit);
       expect(game.cue, isFalse);
@@ -91,9 +91,9 @@ void main() {
       player.played.clear();
       async.elapse(GameController.beforeSuccess);
       expect(game.phase, Phase.success);
-      async.elapse(GameController.arpeggioStep * 8);
-      // The arpeggio goes up every lit slice.
-      expect(player.played, [0, 1, 2, 3, 4, 5, 6, 7]);
+      // Silent: every slice lit at once, no note played.
+      expect(game.lit, {0, 1, 2, 3, 4, 5, 6, 7});
+      expect(player.played, isEmpty);
       async.elapse(GameController.successHold);
       expect(game.phase, Phase.listen);
       expect(game.sequence, hasLength(3));

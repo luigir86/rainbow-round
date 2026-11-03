@@ -3,7 +3,9 @@
   "appTitle": "Rainbow Round",
   "settings": "Settings",
   "settingsHold": "Settings, hold to open",
-  "@settingsHold": {"description": "Screen-reader label of the gear, which opens only when held, so that a child does not open it by chance."},
+  "@settingsHold": {
+    "description": "Screen-reader label of the gear, which opens only when held, so that a child does not open it by chance."
+  },
   "game": "Game",
   "gameSequence": "Listen and repeat",
   "gameFree": "Free play",
@@ -11,7 +13,7 @@
   "labelsNone": "Colours",
   "labelsSolfege": "Do Re Mi",
   "labelsLetters": "C D E",
-  "activeSlices": "Slices on",
+  "activeSlices": "Notes on",
   "activeSlicesHint": "From the low C up; the others stay dark and silent.",
   "startLength": "First sequence",
   "longest": "Longest sequence",
@@ -26,6 +28,15 @@
   "stateAgain": "Another one?",
   "stateFree": "Play",
   "sequence": "Sequence: {notes}",
-  "@sequence": {"placeholders": {"notes": {"type": "String"}}},
-  "sequenceEmpty": "No sequence yet"
+  "@sequence": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "sequenceEmpty": "No sequence yet",
+  "instrument": "Instrument",
+  "instrumentCircle": "Circle",
+  "instrumentXylophone": "Xylophone"
 }

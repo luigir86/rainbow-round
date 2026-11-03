@@ -13,6 +13,7 @@ import 'package:rainbow_round/audio/note_player.dart';
 import 'package:rainbow_round/game/game_controller.dart';
 import 'package:rainbow_round/game/notes.dart';
 import 'package:rainbow_round/widgets/rainbow_circle.dart';
+import 'package:rainbow_round/widgets/xylophone.dart';
 
 Future<void> loadFont(String family, List<String> files) async {
   final loader = FontLoader(family);
@@ -71,7 +72,7 @@ void main() {
     final box = tester.getRect(find.byType(RainbowCircle));
     return box.center +
         Offset.fromDirection(
-          CircleGeometry.angleOf(note),
+          CircleGeometry.angleOf(note, 8),
           box.width / 2 * CircleGeometry.label,
         );
   }
@@ -159,5 +160,41 @@ void main() {
       await g.up();
       await tester.pumpAndSettle();
     }),
+  );
+
+  testWidgets(
+    'xylophone your turn',
+    (tester) => shoot(
+      tester,
+      '9_xylophone',
+      (player) async {
+        final box = tester.getRect(find.byType(Xylophone));
+        final geometry = XylophoneGeometry(box.size, 8);
+        await tester.tapAt(box.topLeft + geometry.button.center);
+        await tester.pump(const Duration(seconds: 3));
+      },
+      settings: AppSettings()
+        ..instrument = Instrument.xylophone
+        ..activeCount = 8,
+    ),
+  );
+
+  testWidgets(
+    'xylophone free, landscape',
+    (tester) => shoot(
+      tester,
+      '10_xylophone_landscape',
+      (_) async {
+        final box = tester.getRect(find.byType(Xylophone));
+        final geometry = XylophoneGeometry(box.size, 8);
+        await tester.startGesture(box.topLeft + geometry.bar(4).center);
+        await tester.pump(const Duration(milliseconds: 50));
+      },
+      settings: AppSettings()
+        ..mode = GameMode.free
+        ..instrument = Instrument.xylophone
+        ..activeCount = 8,
+      size: const Size(915, 412),
+    ),
   );
 }

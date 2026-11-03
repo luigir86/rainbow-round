@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/hold_gear.dart';
 import '../widgets/rainbow_circle.dart';
 import '../widgets/sequence_dots.dart';
+import '../widgets/xylophone.dart';
 import 'settings.dart';
 import 'settings_page.dart';
 
@@ -32,11 +33,14 @@ class RoundScreen extends StatelessWidget {
                       ? NoteLabels.solfege
                       : NoteLabels.letters)
                 : labels;
-            final circle = RainbowCircle(
-              game: game,
-              labels: labels,
-              spokenLabels: spoken,
-            );
+            final xylophone = settings.instrument == Instrument.xylophone;
+            final instrument = xylophone
+                ? Xylophone(game: game, labels: labels, spokenLabels: spoken)
+                : RainbowCircle(
+                    game: game,
+                    labels: labels,
+                    spokenLabels: spoken,
+                  );
             final dots = SequenceDots(
               game: game,
               labels: labels,
@@ -49,20 +53,27 @@ class RoundScreen extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 56, 16, 24),
-                  child: landscape
+                  // The circle has the dots beside it when the phone lies
+                  // down; the xylophone, as wide as the screen, always has
+                  // them under it.
+                  child: landscape && !xylophone
                       ? Row(
                           children: [
-                            Expanded(child: Center(child: circle)),
+                            Expanded(child: Center(child: instrument)),
                             const SizedBox(width: 24),
                             Expanded(child: Center(child: dots)),
                           ],
                         )
                       : Column(
                           children: [
-                            Expanded(child: Center(child: circle)),
-                            const SizedBox(height: 24),
+                            Expanded(
+                              child: xylophone
+                                  ? instrument
+                                  : Center(child: instrument),
+                            ),
+                            SizedBox(height: landscape ? 12 : 24),
                             dots,
-                            const SizedBox(height: 24),
+                            SizedBox(height: landscape ? 0 : 24),
                           ],
                         ),
                 ),
