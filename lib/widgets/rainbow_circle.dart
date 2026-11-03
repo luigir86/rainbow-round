@@ -21,10 +21,6 @@ abstract final class CircleGeometry {
   /// A lit slice grows out to the edge.
   static const sliceLit = 1.0;
 
-  /// The halo round the hub when it lights with the signal of the child's
-  /// turn.
-  static const cueHalo = 0.37;
-
   /// The gap between two slices, in radians at each side.
   static const gap = 0.025;
 
@@ -53,7 +49,7 @@ abstract final class CircleGeometry {
   }
 }
 
-/// The circle: eight slices from C to high C round a hub that shows the
+/// The circle: seven slices from C to B round a hub that shows the
 /// state, going up clockwise from the top.
 /// Every finger counts at once, so several slices make a chord.
 class RainbowCircle extends InstrumentView {
@@ -76,7 +72,6 @@ class _RainbowCircleState extends InstrumentViewState<RainbowCircle> {
   @override
   Widget build(BuildContext context) {
     final game = widget.game;
-    final scheme = Theme.of(context).colorScheme;
     final colors = RoundColors.of(context);
     return AspectRatio(
       aspectRatio: 1,
@@ -90,27 +85,21 @@ class _RainbowCircleState extends InstrumentViewState<RainbowCircle> {
               fit: StackFit.expand,
               children: [
                 RepaintBoundary(
-                  child: AnimatedBuilder(
-                    animation: Listenable.merge([shake, cue]),
-                    builder: (context, _) => CustomPaint(
-                      painter: _CirclePainter(
-                        colors: colors,
-                        fills: [
-                          for (var i = 0; i < game.noteCount; i++)
-                            noteColor(i, colors),
-                        ],
-                        cueColor: scheme.primary,
-                        text: Theme.of(context).textTheme.headlineSmall!
-                            .copyWith(fontWeight: FontWeight.w700),
-                        textScaler: MediaQuery.textScalerOf(context),
-                        game: game,
-                        count: game.noteCount,
-                        activeCount: game.activeCount,
-                        labels: widget.labels,
-                        spokenLabels: widget.spokenLabels,
-                        shake: shakeAmount * 0.06,
-                        cue: cue.value,
-                      ),
+                  child: CustomPaint(
+                    painter: _CirclePainter(
+                      fills: [
+                        for (var i = 0; i < game.noteCount; i++)
+                          noteColor(i, colors),
+                      ],
+                      middle: middleColor(context),
+                      text: Theme.of(context).textTheme.headlineSmall!
+                          .copyWith(fontWeight: FontWeight.w700),
+                      textScaler: MediaQuery.textScalerOf(context),
+                      game: game,
+                      count: game.noteCount,
+                      activeCount: game.activeCount,
+                      labels: widget.labels,
+                      spokenLabels: widget.spokenLabels,
                     ),
                   ),
                 ),
@@ -128,9 +117,8 @@ class _RainbowCircleState extends InstrumentViewState<RainbowCircle> {
 
 class _CirclePainter extends CustomPainter {
   _CirclePainter({
-    required this.colors,
     required this.fills,
-    required this.cueColor,
+    required this.middle,
     required this.text,
     required this.textScaler,
     required this.game,
@@ -138,15 +126,13 @@ class _CirclePainter extends CustomPainter {
     required this.activeCount,
     required this.labels,
     required this.spokenLabels,
-    required this.shake,
-    required this.cue,
   });
-
-  final RoundColors colors;
 
   /// The colour of each slice now.
   final List<Color> fills;
-  final Color cueColor;
+
+  /// The colour of the hub now.
+  final Color middle;
   final TextStyle text;
   final TextScaler textScaler;
   final GameController game;
@@ -154,10 +140,6 @@ class _CirclePainter extends CustomPainter {
   final int activeCount;
   final NoteLabels labels;
   final NoteLabels spokenLabels;
-
-  /// How far the wrong slice is turned, in radians.
-  final double shake;
-  final double cue;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -170,8 +152,7 @@ class _CirclePainter extends CustomPainter {
       final active = game.isActive(i);
       final on = active && game.lit.contains(i);
       final outer = on ? CircleGeometry.sliceLit : CircleGeometry.sliceOuter;
-      final turn = game.wrong == i ? shake : 0.0;
-      final mid = CircleGeometry.angleOf(i, count) + turn;
+      final mid = CircleGeometry.angleOf(i, count);
       final path = Path()
         ..arcTo(
           Rect.fromCircle(center: center, radius: radius * outer),
@@ -192,7 +173,7 @@ class _CirclePainter extends CustomPainter {
       paint.color = fills[i];
       canvas.drawPath(path, paint);
 
-      final name = labels.nameOf(i);
+      final name = labels.shownName(i);
       if (active && name != null) {
         final painter = TextPainter(
           text: TextSpan(
@@ -222,19 +203,10 @@ class _CirclePainter extends CustomPainter {
       }
     }
 
-    // The hub lights up with the signal of the child's turn, with a halo
-    // in the gap before the slices.
-    if (cue > 0) {
-      canvas.drawCircle(
-        center,
-        radius * CircleGeometry.cueHalo,
-        Paint()..color = cueColor.withValues(alpha: cue * 0.5),
-      );
-    }
     canvas.drawCircle(
       center,
       radius * CircleGeometry.hub,
-      Paint()..color = Color.lerp(colors.disc, cueColor, cue)!,
+      Paint()..color = middle,
     );
   }
 

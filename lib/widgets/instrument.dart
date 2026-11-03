@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../app/theme.dart';
@@ -29,33 +27,14 @@ abstract class InstrumentView extends StatefulWidget {
 
 /// How the place that shows the state looks in each phase: the middle of
 /// the circle, the button over the xylophone.
-typedef PhaseLook = ({
-  IconData icon,
-  String label,
-  Color color,
-  bool startable,
-});
+typedef PhaseLook = ({IconData? icon, String label, bool startable});
 
-/// The behaviour every shape shares: a note under each finger, the shake
-/// of a wrong note, the light of the child's turn.
-abstract class InstrumentViewState<T extends InstrumentView> extends State<T>
-    with TickerProviderStateMixin {
-  /// The note touched by mistake shakes, briefly.
-  late final shake = AnimationController(
-    vsync: this,
-    duration: Durations.long1,
-  );
-
-  /// The state lights up with the signal of the child's turn, and fades.
-  late final cue = AnimationController(
-    vsync: this,
-    duration: Durations.medium2,
-  );
-
+/// The behaviour every shape shares: a note under each finger, the
+/// middle that plays the sequence, the grey of a circle that cannot be
+/// played. Nothing moves by itself.
+abstract class InstrumentViewState<T extends InstrumentView> extends State<T> {
   /// The note under each finger.
   final _fingers = <int, int>{};
-
-  int _wrongCount = 0;
 
   /// What is under [point] in an instrument of [size]: a note, the state
   /// (-1), or nothing (null).
@@ -64,7 +43,6 @@ abstract class InstrumentViewState<T extends InstrumentView> extends State<T>
   @override
   void initState() {
     super.initState();
-    _wrongCount = widget.game.wrongCount;
     widget.game.addListener(_changed);
   }
 
@@ -77,45 +55,16 @@ abstract class InstrumentViewState<T extends InstrumentView> extends State<T>
     }
   }
 
-  void _changed() {
-    final game = widget.game;
-    final still = MediaQuery.disableAnimationsOf(context);
-    if (game.wrongCount != _wrongCount) {
-      _wrongCount = game.wrongCount;
-      // With fewer animations asked for, the note does not shake: the low
-      // note and the pause still say it.
-      if (!still) shake.forward(from: 0);
-    }
-    if (game.cue) {
-      cue.value = 1;
-    } else if (cue.value > 0) {
-      if (still) {
-        cue.value = 0;
-      } else {
-        cue.reverse();
-      }
-    }
-    setState(() {});
-  }
+  void _changed() => setState(() {});
 
   @override
   void dispose() {
     widget.game.removeListener(_changed);
-    shake.dispose();
-    cue.dispose();
     super.dispose();
   }
 
-  /// How far the wrong note is moved now, from -1 to 1: a few small swings
-  /// that die away.
-  double get shakeAmount {
-    final t = shake.value;
-    if (t == 0 || t == 1) return 0;
-    return math.sin(t * math.pi * 6) * (1 - t);
-  }
-
   /// Every finger on its own note, so several make a chord; a touch that
-  /// starts and ends on the state starts a game.
+  /// starts and ends on the state plays the sequence.
   Widget touches(Size size, Widget child) => Listener(
     behavior: HitTestBehavior.opaque,
     onPointerDown: (event) {
@@ -139,59 +88,60 @@ abstract class InstrumentViewState<T extends InstrumentView> extends State<T>
     }
   }
 
+  /// The middle shows an icon only when it can be touched (the ear: it
+  /// plays the sequence) and for the star at the end. Otherwise it is
+  /// empty: the colours of the circle say whose turn it is.
   PhaseLook look(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final phase = widget.game.phase;
     final (icon, label) = switch (phase) {
-      Phase.free => (Icons.music_note_rounded, l10n.stateFree),
-      Phase.ready => (Icons.play_arrow_rounded, l10n.stateReady),
-      Phase.listen => (Icons.hearing_rounded, l10n.stateListen),
-      Phase.yourTurn => (Icons.back_hand_rounded, l10n.stateYourTurn),
-      Phase.oops => (Icons.back_hand_rounded, l10n.stateWait),
+      Phase.free => (null, l10n.stateFree),
+      Phase.ready => (Icons.hearing_rounded, l10n.stateReady),
+      Phase.listen => (null, l10n.stateListen),
+      Phase.yourTurn => (null, l10n.stateYourTurn),
+      Phase.oops => (null, l10n.stateWait),
+      Phase.again => (Icons.hearing_rounded, l10n.stateAgain),
       Phase.success => (Icons.star_rounded, l10n.stateWellDone),
-      Phase.finished => (Icons.replay_rounded, l10n.stateAgain),
     };
-    return (
-      icon: icon,
-      label: label,
-      color: switch (phase) {
-        Phase.success => scheme.primary,
-        Phase.oops || Phase.free => scheme.onSurfaceVariant,
-        _ => scheme.onSurface,
-      },
-      startable: phase == Phase.ready || phase == Phase.finished,
-    );
+    return (icon: icon, label: label, startable: widget.game.middleStarts);
   }
 
-  /// The icon of the state, on the place that lights with the signal of
-  /// the child's turn: there the hand turns dark and a little bigger.
+  /// The colour of the middle: bronze when it can be touched or at the
+  /// celebration, the dark of the disc otherwise.
+  Color middleColor(BuildContext context) {
+    final game = widget.game;
+    final lit = game.middleStarts || game.phase == Phase.success;
+    return lit
+        ? Theme.of(context).colorScheme.primary
+        : RoundColors.of(context).disc;
+  }
+
+  /// The icon of the state, dark on the bronze of the middle.
   Widget stateIcon(BuildContext context, double size) {
     final look = this.look(context);
-    final onLit = Theme.of(context).colorScheme.onPrimary;
     return Semantics(
       button: look.startable,
       label: look.label,
       onTap: look.startable ? widget.game.touchMiddle : null,
       excludeSemantics: true,
-      child: AnimatedBuilder(
-        animation: cue,
-        builder: (context, _) => Icon(
-          look.icon,
-          size: size * (1 + 0.15 * cue.value),
-          color: Color.lerp(look.color, onLit, cue.value),
-        ),
-      ),
+      child: look.icon == null
+          ? SizedBox.square(dimension: size)
+          : Icon(
+              look.icon,
+              size: size,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
     );
   }
 
-  /// The colour of note [i] now: off, lit, stepping back while another
-  /// sounds, or its own.
+  /// The colour of note [i] now. While the circle cannot be played it is
+  /// grey, and the note that sounds has its own colour; while it can, the
+  /// notes have their colours and the one touched lights up.
   Color noteColor(int i, RoundColors colors) {
     final game = widget.game;
     if (!game.isActive(i)) return colors.sliceOff;
-    if (game.lit.contains(i)) return colors.lit(i);
-    final receding = game.phase == Phase.listen || game.phase == Phase.success;
-    return receding ? colors.receded(i) : colors.notes[i];
+    final lit = game.lit.contains(i);
+    if (game.playable) return lit ? colors.lit(i) : colors.notes[i];
+    return lit ? colors.notes[i] : colors.asleep(i);
   }
 }

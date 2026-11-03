@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @activeSlicesHint.
   ///
   /// In en, this message translates to:
-  /// **'From the low C up; the others stay dark and silent.'**
+  /// **'From the C up; the others stay dark and silent.'**
   String get activeSlicesHint;
 
   /// No description provided for @startLength.
@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @notesHint.
   ///
   /// In en, this message translates to:
-  /// **'Notes. When the longest sequence is repeated, the game ends.'**
+  /// **'Notes. When the longest sequence is repeated, the game is celebrated and ends.'**
   String get notesHint;
 
   /// No description provided for @about.
@@ -197,19 +197,19 @@ abstract class AppLocalizations {
   /// No description provided for @aboutText.
   ///
   /// In en, this message translates to:
-  /// **'A circle of eight notes to play, listen to and repeat. Free and open source, with no account, no ads and no internet.'**
+  /// **'A circle of seven notes to play, listen to and repeat. Free and open source, with no account, no ads and no internet.'**
   String get aboutText;
 
   /// No description provided for @stateReady.
   ///
   /// In en, this message translates to:
-  /// **'Start'**
+  /// **'Listen'**
   String get stateReady;
 
   /// No description provided for @stateListen.
   ///
   /// In en, this message translates to:
-  /// **'Listen'**
+  /// **'Listen, do not touch'**
   String get stateListen;
 
   /// No description provided for @stateYourTurn.
@@ -221,7 +221,7 @@ abstract class AppLocalizations {
   /// No description provided for @stateWait.
   ///
   /// In en, this message translates to:
-  /// **'Wait'**
+  /// **'Wrong note'**
   String get stateWait;
 
   /// No description provided for @stateWellDone.
@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @stateAgain.
   ///
   /// In en, this message translates to:
-  /// **'Another one?'**
+  /// **'Listen again'**
   String get stateAgain;
 
   /// No description provided for @stateFree.
@@ -271,6 +271,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Xylophone'**
   String get instrumentXylophone;
+
+  /// No description provided for @licences.
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get licences;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

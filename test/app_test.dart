@@ -5,6 +5,8 @@ import 'package:rainbow_round/app/settings.dart';
 import 'package:rainbow_round/app/settings_page.dart';
 import 'package:rainbow_round/audio/note_player.dart';
 import 'package:rainbow_round/game/game_controller.dart';
+import 'package:rainbow_round/game/notes.dart';
+import 'package:rainbow_round/l10n/app_localizations.dart';
 import 'package:rainbow_round/widgets/rainbow_circle.dart';
 import 'package:rainbow_round/widgets/xylophone.dart';
 
@@ -27,7 +29,7 @@ void main() {
   /// The middle of slice [note] on screen.
   Offset sliceAt(WidgetTester tester, int note) {
     final box = tester.getRect(find.byType(RainbowCircle));
-    final a = CircleGeometry.angleOf(note, 8);
+    final a = CircleGeometry.angleOf(note, 7);
     final r = box.width / 2 * CircleGeometry.label;
     return box.center + Offset.fromDirection(a, r);
   }
@@ -48,21 +50,40 @@ void main() {
   testWidgets('every bar of the xylophone is found where it is drawn', (
     tester,
   ) async {
-    final geometry = XylophoneGeometry(const Size(400, 300), 8);
-    for (var i = 0; i < 8; i++) {
+    final geometry = XylophoneGeometry(const Size(400, 300), 7);
+    for (var i = 0; i < 7; i++) {
       expect(geometry.hit(geometry.bar(i).center), i);
     }
     expect(geometry.hit(geometry.button.center), -1);
-    // The high C is the shortest bar.
-    expect(geometry.bar(7).height, lessThan(geometry.bar(0).height));
+    // The B is the shortest bar.
+    expect(geometry.bar(6).height, lessThan(geometry.bar(0).height));
   });
 
   testWidgets('shows the note names in Italian', (tester) async {
     final semantics = tester.ensureSemantics();
     await pumpApp(tester);
     expect(find.semantics.byLabel('Sol'), findsOne);
-    expect(find.semantics.byLabel('Inizia'), findsOne);
+    expect(find.semantics.byLabel('Ascolta'), findsOne);
     semantics.dispose();
+  });
+
+  testWidgets('every text on the screen is in capitals', (tester) async {
+    final settings = AppSettings()..mode = GameMode.free;
+    await pumpApp(tester, settings: settings);
+    // The names on the slices and in the dots are painted from these.
+    expect(NoteLabels.solfege.shownName(4), 'SOL');
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        locale: const Locale('it'),
+        home: SettingsPage(settings: settings),
+      ),
+    );
+    await tester.pump();
+    for (final text in tester.widgetList<Text>(find.byType(Text))) {
+      final data = text.data ?? '';
+      expect(data, data.toUpperCase(), reason: data);
+    }
   });
 
   testWidgets('free play: a touch on a slice plays its note', (tester) async {
@@ -74,50 +95,65 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('both instruments have eight notes, C to high C', (tester) async {
+  testWidgets('both instruments have seven notes, C to B', (tester) async {
     final semantics = tester.ensureSemantics();
-    final settings = AppSettings()
-      ..mode = GameMode.free
-      ..activeCount = 8;
+    final settings = AppSettings()..mode = GameMode.free;
     await pumpApp(tester, settings: settings);
     expect(find.semantics.byLabel('Si'), findsOne);
-    expect(find.semantics.byLabel('Do'), findsNWidgets(2));
+    expect(find.semantics.byLabel('Do'), findsOne);
     settings.instrument = Instrument.xylophone;
     await tester.pump();
     expect(find.byType(Xylophone), findsOneWidget);
-    expect(find.semantics.byLabel('Do'), findsNWidgets(2));
+    expect(find.semantics.byLabel('Si'), findsOne);
+    expect(find.semantics.byLabel('Do'), findsOne);
     semantics.dispose();
   });
 
   testWidgets('xylophone: a touch on a bar plays its note', (tester) async {
     final settings = AppSettings()
       ..mode = GameMode.free
-      ..instrument = Instrument.xylophone
-      ..activeCount = 8;
+      ..instrument = Instrument.xylophone;
     final player = await pumpApp(tester, settings: settings);
     final box = tester.getRect(find.byType(Xylophone));
-    final geometry = XylophoneGeometry(box.size, 8);
+    final geometry = XylophoneGeometry(box.size, 7);
     await tester.tapAt(box.topLeft + geometry.bar(0).center);
-    await tester.tapAt(box.topLeft + geometry.bar(7).center);
-    expect(player.played, [0, 7]);
+    await tester.tapAt(box.topLeft + geometry.bar(6).center);
+    expect(player.played, [0, 6]);
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('a game: listen, repeat, well done', (tester) async {
+  testWidgets('a game: listen, repeat, a mistake, listen again', (
+    tester,
+  ) async {
     final player = await pumpApp(tester);
     final circle = tester.getRect(find.byType(RainbowCircle));
+    expect(find.byIcon(Icons.hearing_rounded), findsOneWidget);
     await tester.tapAt(circle.center);
+    await tester.pump();
+    // While it plays, the middle is empty and does nothing.
+    expect(find.byIcon(Icons.hearing_rounded), findsNothing);
     await tester.pump(const Duration(seconds: 3));
-    expect(find.byIcon(Icons.back_hand_rounded), findsOneWidget);
     final sequence = List.of(player.played);
     expect(sequence, hasLength(2));
     for (final n in sequence) {
       await tester.tapAt(sliceAt(tester, n));
       await tester.pump(const Duration(milliseconds: 100));
     }
-    await tester.pump(GameController.beforeSuccess);
-    expect(find.byIcon(Icons.star_rounded), findsOneWidget);
-    await tester.pump(const Duration(seconds: 3));
+    // No star between rounds.
+    expect(find.byIcon(Icons.star_rounded), findsNothing);
+    await tester.pump(const Duration(seconds: 4));
+    final longer = player.played.skip(4).toList();
+    expect(longer, hasLength(3));
+    await tester.tapAt(sliceAt(tester, (longer.first + 1) % 7));
+    await tester.pump();
+    expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+    await tester.pump(GameController.lockout);
+    expect(find.byIcon(Icons.hearing_rounded), findsOneWidget);
+    await tester.tapAt(circle.center);
+    await tester.pump();
+    expect(find.byIcon(Icons.close_rounded), findsNothing);
+    await tester.pump(const Duration(seconds: 4));
+    expect(player.played.skip(7), longer);
   });
 
   testWidgets('the gear opens the settings only when held', (tester) async {
@@ -132,9 +168,9 @@ void main() {
     await gesture.up();
     await tester.pumpAndSettle();
     expect(find.byType(SettingsPage), findsOneWidget);
-    await tester.tap(find.text('Gioco libero'));
+    await tester.tap(find.text('GIOCO LIBERO'));
     await tester.pumpAndSettle();
-    expect(find.text('Gioco libero'), findsOneWidget);
+    expect(find.text('GIOCO LIBERO'), findsOneWidget);
   });
 
   testWidgets('fits a small phone, in both orientations, with large text', (

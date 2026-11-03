@@ -15,16 +15,15 @@ enum GameMode {
 /// The shape of the instrument on the screen. Two, to try which one a
 /// child plays better.
 enum Instrument {
-  /// A circle of eight slices, C to high C, going up clockwise from the
-  /// top.
+  /// A circle of seven slices, C to B, going up clockwise from the top.
   circle,
 
-  /// A row of eight bars, C to high C, low on the left and high on the
-  /// right, as on a real xylophone.
+  /// A row of seven bars, C to B, low on the left and high on the right,
+  /// as on a real xylophone.
   xylophone;
 
   /// How many notes it has.
-  int get notes => 8;
+  int get notes => Notes.count;
 }
 
 /// The grown-up's choices, kept on the phone between launches.
@@ -48,7 +47,7 @@ class AppSettings extends ChangeNotifier {
     final start = _read<int>(prefs, _startKey);
     _startLength = startChoices.contains(start) ? start! : 2;
     final longest = _read<int>(prefs, _longestKey);
-    _longest = longestChoices.contains(longest) ? longest! : 6;
+    _longest = longestChoices.contains(longest) ? longest! : 8;
   }
 
   static Future<AppSettings> load() async =>
@@ -63,9 +62,9 @@ class AppSettings extends ChangeNotifier {
   static const _startKey = 'startLength';
   static const _longestKey = 'longestSequence';
 
-  static const activeChoices = [3, 4, 5, 6, 7, 8];
+  static const activeChoices = [3, 4, 5, 6, 7];
   static const startChoices = [1, 2, 3, 4];
-  static const longestChoices = [4, 6, 8, 10, 12];
+  static const longestChoices = [4, 6, 8];
 
   static T? _read<T>(SharedPreferences prefs, String key) {
     final value = prefs.get(key);
@@ -77,7 +76,7 @@ class AppSettings extends ChangeNotifier {
   NoteLabels? _labels;
   int _activeCount = Notes.count;
   int _startLength = 2;
-  int _longest = 6;
+  int _longest = 8;
 
   GameMode get mode => _mode;
   set mode(GameMode value) {
@@ -133,8 +132,8 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The longest sequence: once repeated, the game ends and asks for
-  /// another one.
+  /// The longest sequence: once repeated, the circle celebrates and the
+  /// game ends. Eight at most: more is too many to hold in mind.
   int get longest => _longest;
   set longest(int value) {
     if (value == _longest || !longestChoices.contains(value)) return;

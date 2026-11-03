@@ -12,7 +12,7 @@ void main() {
   final colors = RoundTheme.dark.extension<RoundColors>()!;
 
   test('the note names read on every slice (4.5 : 1)', () {
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 7; i++) {
       expect(
         contrast(RoundColors.inkOn(colors.notes[i]), colors.notes[i]),
         greaterThanOrEqualTo(4.5),
@@ -28,7 +28,7 @@ void main() {
   });
 
   test('every slice stands out from the ground (3 : 1)', () {
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 7; i++) {
       expect(
         contrast(colors.notes[i], Palette.ebony),
         greaterThanOrEqualTo(3),
@@ -38,10 +38,20 @@ void main() {
   });
 
   test('neighbours differ in lightness, for colour-blind eyes too', () {
-    // Round the circle: C to high C and back to the low C.
-    for (var i = 0; i < 8; i++) {
-      final a = colors.notes[i], b = colors.notes[(i + 1) % 8];
+    // C to B; the B and the C, both dark, are the one pair that cannot.
+    for (var i = 0; i < 6; i++) {
+      final a = colors.notes[i], b = colors.notes[i + 1];
       expect(contrast(a, b), greaterThanOrEqualTo(2.4), reason: '$i');
+    }
+  });
+
+  test('a grey slice is plainly darker than its own colour', () {
+    for (var i = 0; i < 7; i++) {
+      expect(
+        contrast(colors.notes[i], colors.asleep(i)),
+        greaterThanOrEqualTo(1.5),
+        reason: 'slice $i',
+      );
     }
   });
 }

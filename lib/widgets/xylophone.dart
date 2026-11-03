@@ -37,11 +37,11 @@ class XylophoneGeometry {
   static const shortest = 0.7;
 
   /// Bar [i], [grow] times longer than at rest, centred on its column.
-  Rect bar(int i, {double grow = 1, double shift = 0}) {
+  Rect bar(int i, {double grow = 1}) {
     final room = size.height - top;
     final f = count < 2 ? 1.0 : 1 - (1 - shortest) * i / (count - 1);
     final h = room * f * grow;
-    final x = i * (barWidth + gap) + shift;
+    final x = i * (barWidth + gap);
     return Rect.fromLTWH(x, top + (room - h) / 2, barWidth, h);
   }
 
@@ -55,7 +55,7 @@ class XylophoneGeometry {
   }
 }
 
-/// The xylophone: eight bars from C to high C, low on the left and high on
+/// The xylophone: seven bars from C to B, low on the left and high on
 /// the right, under a strip that shows the state. Every finger counts at
 /// once, so several bars make a chord.
 class Xylophone extends InstrumentView {
@@ -78,7 +78,6 @@ class _XylophoneState extends InstrumentViewState<Xylophone> {
   @override
   Widget build(BuildContext context) {
     final game = widget.game;
-    final scheme = Theme.of(context).colorScheme;
     final colors = RoundColors.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -90,27 +89,21 @@ class _XylophoneState extends InstrumentViewState<Xylophone> {
             fit: StackFit.expand,
             children: [
               RepaintBoundary(
-                child: AnimatedBuilder(
-                  animation: Listenable.merge([shake, cue]),
-                  builder: (context, _) => CustomPaint(
-                    painter: _XylophonePainter(
-                      geometry: geometry,
-                      colors: colors,
-                      fills: [
-                        for (var i = 0; i < game.noteCount; i++)
-                          noteColor(i, colors),
-                      ],
-                      cueColor: scheme.primary,
-                      text: Theme.of(context).textTheme.headlineSmall!
-                          .copyWith(fontWeight: FontWeight.w700),
-                      textScaler: MediaQuery.textScalerOf(context),
-                      game: game,
-                      activeCount: game.activeCount,
-                      labels: widget.labels,
-                      spokenLabels: widget.spokenLabels,
-                      shake: shakeAmount * geometry.barWidth * 0.12,
-                      cue: cue.value,
-                    ),
+                child: CustomPaint(
+                  painter: _XylophonePainter(
+                    geometry: geometry,
+                    fills: [
+                      for (var i = 0; i < game.noteCount; i++)
+                        noteColor(i, colors),
+                    ],
+                    middle: middleColor(context),
+                    text: Theme.of(context).textTheme.headlineSmall!
+                        .copyWith(fontWeight: FontWeight.w700),
+                    textScaler: MediaQuery.textScalerOf(context),
+                    game: game,
+                    activeCount: game.activeCount,
+                    labels: widget.labels,
+                    spokenLabels: widget.spokenLabels,
                   ),
                 ),
               ),
@@ -131,23 +124,21 @@ class _XylophoneState extends InstrumentViewState<Xylophone> {
 class _XylophonePainter extends CustomPainter {
   _XylophonePainter({
     required this.geometry,
-    required this.colors,
     required this.fills,
-    required this.cueColor,
+    required this.middle,
     required this.text,
     required this.textScaler,
     required this.game,
     required this.activeCount,
     required this.labels,
     required this.spokenLabels,
-    required this.shake,
-    required this.cue,
   });
 
   final XylophoneGeometry geometry;
-  final RoundColors colors;
   final List<Color> fills;
-  final Color cueColor;
+
+  /// The colour of the button of the state now.
+  final Color middle;
   final TextStyle text;
   final TextScaler textScaler;
   final GameController game;
@@ -155,44 +146,27 @@ class _XylophonePainter extends CustomPainter {
   final NoteLabels labels;
   final NoteLabels spokenLabels;
 
-  /// How far the wrong bar is moved sideways, in pixels.
-  final double shake;
-  final double cue;
-
   @override
   void paint(Canvas canvas, Size size) {
     final radius = Radius.circular(
       math.min(RoundShape.radius, geometry.barWidth * 0.3),
     );
 
-    // The button of the state, lit with the signal of the child's turn.
+    // The button of the state.
     final button = RRect.fromRectAndRadius(
       geometry.button,
       Radius.circular(geometry.button.height / 2),
     );
-    if (cue > 0) {
-      canvas.drawRRect(
-        button.inflate(6),
-        Paint()..color = cueColor.withValues(alpha: cue * 0.5),
-      );
-    }
-    canvas.drawRRect(
-      button,
-      Paint()..color = Color.lerp(colors.disc, cueColor, cue)!,
-    );
+    canvas.drawRRect(button, Paint()..color = middle);
 
     for (var i = 0; i < geometry.count; i++) {
       final active = game.isActive(i);
       final on = active && game.lit.contains(i);
-      final rect = geometry.bar(
-        i,
-        grow: on ? 1.04 : 1,
-        shift: game.wrong == i ? shake : 0,
-      );
+      final rect = geometry.bar(i, grow: on ? 1.04 : 1);
       final bar = RRect.fromRectAndRadius(rect, radius);
       canvas.drawRRect(bar, Paint()..color = fills[i]);
 
-      final name = labels.nameOf(i);
+      final name = labels.shownName(i);
       if (active && name != null) {
         final painter = TextPainter(
           text: TextSpan(

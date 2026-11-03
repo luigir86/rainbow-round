@@ -44,7 +44,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activeSlicesHint =>
-      'From the low C up; the others stay dark and silent.';
+      'From the C up; the others stay dark and silent.';
 
   @override
   String get startLength => 'First sequence';
@@ -54,32 +54,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notesHint =>
-      'Notes. When the longest sequence is repeated, the game ends.';
+      'Notes. When the longest sequence is repeated, the game is celebrated and ends.';
 
   @override
   String get about => 'About Rainbow Round';
 
   @override
   String get aboutText =>
-      'A circle of eight notes to play, listen to and repeat. Free and open source, with no account, no ads and no internet.';
+      'A circle of seven notes to play, listen to and repeat. Free and open source, with no account, no ads and no internet.';
 
   @override
-  String get stateReady => 'Start';
+  String get stateReady => 'Listen';
 
   @override
-  String get stateListen => 'Listen';
+  String get stateListen => 'Listen, do not touch';
 
   @override
   String get stateYourTurn => 'Your turn';
 
   @override
-  String get stateWait => 'Wait';
+  String get stateWait => 'Wrong note';
 
   @override
   String get stateWellDone => 'Well done';
 
   @override
-  String get stateAgain => 'Another one?';
+  String get stateAgain => 'Listen again';
 
   @override
   String get stateFree => 'Play';
@@ -100,4 +100,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get instrumentXylophone => 'Xylophone';
+
+  @override
+  String get licences => 'Licences';
+
+  @override
+  String get close => 'Close';
 }
